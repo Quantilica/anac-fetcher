@@ -1,0 +1,33 @@
+"""anac-fetcher — Download de dados abertos da ANAC (aviação civil)."""
+
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("anac-fetcher")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
+
+from .catalog import (
+    GROUPS,
+    DatasetEntry,
+    GroupInfo,
+    expand_group,
+    list_datasets,
+    resolve_group,
+)
+from .download import download_all, download_entry, download_file
+from .storage import DataRepository
+
+__all__ = [
+    "__version__",
+    "GROUPS",
+    "DatasetEntry",
+    "GroupInfo",
+    "DataRepository",
+    "download_all",
+    "download_entry",
+    "download_file",
+    "expand_group",
+    "list_datasets",
+    "resolve_group",
+]
