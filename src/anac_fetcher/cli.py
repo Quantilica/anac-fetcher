@@ -68,11 +68,9 @@ def get_parser() -> argparse.ArgumentParser:
         help="Logs detalhados",
     )
 
-    # discover
-    discover_parser = subparsers.add_parser(
-        "discover", help="Listar datasets no catálogo"
-    )
-    discover_parser.add_argument(
+    # list
+    list_parser = subparsers.add_parser("list", help="Listar datasets no catálogo")
+    list_parser.add_argument(
         "--verbose",
         action="store_true",
         help="Logs detalhados",
@@ -135,7 +133,7 @@ def _handle_sync(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
-def _handle_discover(args: argparse.Namespace) -> None:
+def _handle_list(args: argparse.Namespace) -> None:
     configure_cli_logging(args.verbose)
     if not args.verbose:
         logging.getLogger("quantilica.core").setLevel(logging.WARNING)
@@ -165,8 +163,8 @@ def main(argv: list[str] | None = None) -> None:
     try:
         if args.command == "sync":
             _handle_sync(args)
-        elif args.command == "discover":
-            _handle_discover(args)
+        elif args.command == "list":
+            _handle_list(args)
         else:
             parser.print_help()
             sys.exit(1)

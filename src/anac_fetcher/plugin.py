@@ -141,8 +141,8 @@ def sync(
             console.print(f"  {eid}: {emsg}")
 
 
-@app.command("discover")
-def discover(
+@app.command("list")
+def cmd_list(
     verbose: Annotated[bool, typer.Option("--verbose", help="Logs detalhados")] = False,
 ) -> None:
     """Listar todos os datasets disponíveis no catálogo."""
