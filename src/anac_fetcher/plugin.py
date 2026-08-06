@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import threading
 from pathlib import Path
 from typing import Annotated
 
 import typer
 from quantilica.core.cli import (
+    ProgressPool,
     get_console,
+    graceful_executor,
     make_batch_progress,
     make_download_progress,
     setup_rich_logging,
@@ -87,57 +88,35 @@ def sync(
         return
 
     repo = DataRepository(output)
-    lock = threading.Lock()
-    download_errors: list[tuple[str, str]] = []
-
     overall = make_batch_progress(console)
     file_prog = make_download_progress(console)
     overall_task = overall.add_task("[cyan]Baixando...[/cyan]", total=total)
 
-    worker_task_ids = [
-        file_prog.add_task("[dim]Inativo[/dim]", total=1) for _ in range(workers)
-    ]
-    available_tasks = worker_task_ids.copy()
+    downloaded = 0
+    errors: list[tuple[str, str]] = []
 
     import concurrent.futures
     import time
+
+    pool = ProgressPool(workers=workers, file_prog=file_prog)
 
     def _worker(i: int, entry: dict) -> bool:
         if sleeptime > 0 and i > 0 and not dry_run:
             time.sleep(sleeptime)
 
-        with lock:
-            task_id = available_tasks.pop(0)
-
-        def cb(downloaded_bytes: int, total_bytes: int) -> None:
-            if downloaded_bytes == 0 and total_bytes == 0:
-                file_prog.update(task_id, completed=0)
-                return
-            file_prog.update(
-                task_id,
-                description=f"[cyan]{entry['id']}[/cyan]",
-                completed=downloaded_bytes,
-                total=total_bytes or None,
-            )
-
         try:
-            download_entry(entry, repo, dry_run=dry_run, progress=cb)
-            return True
+            with pool.acquire(description=f"[cyan]{entry['id']}[/cyan]") as cb:
+                download_entry(entry, repo, dry_run=dry_run, progress=cb)
+                return True
         except Exception as exc:
-            with lock:
-                download_errors.append((entry["id"], str(exc)))
+            errors.append((entry["id"], str(exc)))
             return False
-        finally:
-            with lock:
-                file_prog.update(
-                    task_id, description="[dim]Inativo[/dim]", completed=0, total=1
-                )
-                available_tasks.append(task_id)
 
-    downloaded = 0
-    try:
-        with Live(Group(overall, file_prog), console=console, refresh_per_second=10):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+    with graceful_executor(max_workers=workers) as executor:
+        try:
+            with Live(
+                Group(overall, file_prog), console=console, refresh_per_second=10
+            ):
                 futures = {
                     executor.submit(_worker, i, entry): entry
                     for i, entry in enumerate(entries)
@@ -146,12 +125,9 @@ def sync(
                     overall.update(overall_task, advance=1)
                     if future.result():
                         downloaded += 1
-
-        errors = download_errors
-
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Interrompido.[/yellow]")
-        raise typer.Exit(130) from None
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Interrompido.[/yellow]")
+            raise typer.Exit(130) from None
 
     console.print(
         f"\n[green]Concluído:[/green] {downloaded}/{total} arquivo(s) baixado(s)."
