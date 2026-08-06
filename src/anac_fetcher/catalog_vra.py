@@ -61,9 +61,15 @@ def _vra_entry(year: int, month: int, ext: str) -> DatasetEntry:
 
 def _vra_entries_list() -> list[DatasetEntry]:
     entries: list[DatasetEntry] = []
+    _missing_months = {(2014, 6), (2014, 7)}
     for year in range(2000, _LAST_YEAR + 1):
-        max_month = _LAST_MONTH if year == _LAST_YEAR else 12
+        if year == _LAST_YEAR:
+            max_month = max(1, _LAST_MONTH - 2)  # VRA has ~2 months lag
+        else:
+            max_month = 12
         for month in range(1, max_month + 1):
+            if (year, month) in _missing_months:
+                continue
             for ext in ("csv", "json"):
                 entries.append(_vra_entry(year, month, ext))
     return entries

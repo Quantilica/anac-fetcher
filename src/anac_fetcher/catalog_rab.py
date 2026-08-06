@@ -21,6 +21,24 @@ _ROOT = "https://sistemas.anac.gov.br/dadosabertos/Aeronaves/RAB"
 _HIST = f"{_ROOT}/Historico_RAB"
 
 _MISSING_MONTHS = {(2019, 5)}
+_MISSING_RAB_JSON = {
+    (2019, 12),
+    (2022, 9),
+    (2022, 10),
+    (2022, 11),
+    (2022, 12),
+    (2023, 1),
+    (2023, 2),
+    (2023, 3),
+    (2023, 5),
+    (2023, 6),
+    (2023, 7),
+    (2023, 8),
+    (2023, 9),
+    (2023, 10),
+    (2023, 12),
+}
+_MISSING_RAB_XLS = {(2019, 12), (2023, 11)}
 _CSV_SINCE = (2024, 9)
 
 _LAST_YEAR = dt.date.today().year
@@ -77,6 +95,10 @@ def _rab_hist_entries_list() -> list[DatasetEntry]:
             if (year, month) in _MISSING_MONTHS:
                 continue
             for ext in ("json", "xls"):
+                if ext == "json" and (year, month) in _MISSING_RAB_JSON:
+                    continue
+                if ext == "xls" and (year, month) in _MISSING_RAB_XLS:
+                    continue
                 entries.append(_rab_hist_entry(year, month, ext))
             if (year, month) >= _CSV_SINCE:
                 entries.append(_rab_hist_entry(year, month, "csv"))

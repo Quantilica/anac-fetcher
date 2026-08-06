@@ -22,6 +22,8 @@ DownloadError = tuple[DatasetEntry, Exception]
 client = HttpClient(
     timeout=180.0,
     verify=True,
+    attempts=5,
+    retry_base_delay=2.0,
     headers={
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
