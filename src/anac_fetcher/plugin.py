@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import time
+import threading
 from pathlib import Path
 from typing import Annotated
 
@@ -13,10 +13,8 @@ from quantilica.core.cli import (
     make_download_progress,
     setup_rich_logging,
 )
-from quantilica.core.http import ProgressCallback
 from rich.console import Group
 from rich.live import Live
-from rich.progress import Progress, TaskID
 from rich.table import Table
 
 from .catalog import ALL_GROUP_KEYS, GROUP_ALIASES, GROUPS, expand_group, list_datasets
@@ -29,23 +27,6 @@ console = get_console()
 _DEFAULT_OUTPUT = Path("/data/anac")
 
 _ALL_KEYS = ALL_GROUP_KEYS + list(GROUP_ALIASES) + ["aerodromos"]
-
-
-def _file_callback(
-    file_progress: Progress,
-    task_id: TaskID,
-    description: str,
-) -> ProgressCallback:
-    def callback(downloaded: int, total_bytes: int) -> None:
-        if downloaded == 0 and total_bytes == 0:
-            file_progress.reset(task_id)
-            file_progress.update(task_id, description=description, visible=True)
-            return
-        if total_bytes:
-            file_progress.update(task_id, total=total_bytes)
-        file_progress.update(task_id, completed=downloaded)
-
-    return callback
 
 
 @app.command("sync")
@@ -77,6 +58,7 @@ def sync(
             ),
         ),
     ] = 0.3,
+    workers: Annotated[int, typer.Option("--workers", help="Downloads paralelos")] = 4,
     verbose: Annotated[bool, typer.Option("--verbose", help="Logs detalhados")] = False,
 ) -> None:
     """Sincronizar dados da ANAC (VRA, RAB, ocorrências, aeródromos)."""
@@ -105,29 +87,68 @@ def sync(
         return
 
     repo = DataRepository(output)
+    lock = threading.Lock()
+    download_errors: list[tuple[str, str]] = []
+
     overall = make_batch_progress(console)
     file_prog = make_download_progress(console)
-    overall_task = overall.add_task("[cyan]Iniciando...[/cyan]", total=total)
-    file_task = file_prog.add_task("", total=None, visible=False)
+    overall_task = overall.add_task("[cyan]Baixando...[/cyan]", total=total)
+
+    worker_task_ids = [
+        file_prog.add_task("[dim]Inativo[/dim]", total=1) for _ in range(workers)
+    ]
+    available_tasks = worker_task_ids.copy()
+
+    import concurrent.futures
+    import time
+
+    def _worker(i: int, entry: dict) -> bool:
+        if sleeptime > 0 and i > 0 and not dry_run:
+            time.sleep(sleeptime)
+
+        with lock:
+            task_id = available_tasks.pop(0)
+
+        def cb(downloaded_bytes: int, total_bytes: int) -> None:
+            if downloaded_bytes == 0 and total_bytes == 0:
+                file_prog.update(task_id, completed=0)
+                return
+            file_prog.update(
+                task_id,
+                description=f"[cyan]{entry['id']}[/cyan]",
+                completed=downloaded_bytes,
+                total=total_bytes or None,
+            )
+
+        try:
+            download_entry(entry, repo, dry_run=dry_run, progress=cb)
+            return True
+        except Exception as exc:
+            with lock:
+                download_errors.append((entry["id"], str(exc)))
+            return False
+        finally:
+            with lock:
+                file_prog.update(
+                    task_id, description="[dim]Inativo[/dim]", completed=0, total=1
+                )
+                available_tasks.append(task_id)
 
     downloaded = 0
-    errors: list[tuple[str, str]] = []
-
     try:
         with Live(Group(overall, file_prog), console=console, refresh_per_second=10):
-            for i, entry in enumerate(entries):
-                if sleeptime > 0 and i > 0:
-                    time.sleep(sleeptime)
-                overall.update(overall_task, description=f"[cyan]{entry['id']}[/cyan]")
-                cb = _file_callback(file_prog, file_task, entry["id"])
-                try:
-                    download_entry(entry, repo, progress=cb)
-                    downloaded += 1
-                except Exception as exc:
-                    errors.append((entry["id"], str(exc)))
-                finally:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = {
+                    executor.submit(_worker, i, entry): entry
+                    for i, entry in enumerate(entries)
+                }
+                for future in concurrent.futures.as_completed(futures):
                     overall.update(overall_task, advance=1)
-            file_prog.update(file_task, visible=False)
+                    if future.result():
+                        downloaded += 1
+
+        errors = download_errors
+
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrompido.[/yellow]")
         raise typer.Exit(130) from None

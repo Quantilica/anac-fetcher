@@ -1,13 +1,15 @@
 """Download functions for anac-fetcher."""
 
+import concurrent.futures
 import contextlib
 import datetime as dt
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 from quantilica.core.http import HttpClient, ProgressCallback
 from quantilica.core.logging import get_logger
-from quantilica.core.progress import batch_progress, file_progress
+from quantilica.core.progress import file_progress
 
 from .catalog import DatasetEntry, expand_group, list_datasets
 from .storage import DataRepository
@@ -83,42 +85,20 @@ def download_group(
     show_progress: bool = False,
     errors: list[DownloadError] | None = None,
     sleep: float = 0.0,
+    workers: int = 4,
+    on_bytes: Callable[[str, int, int], None] | None = None,
 ) -> list[Path]:
-    """Download all datasets for one group.
-
-    Returns the destination paths of the entries that succeeded (in
-    dry-run mode, every entry "succeeds"). A failure downloading one entry
-    is logged and does not stop the rest of the group; pass ``errors`` (a
-    list) to collect the ``(entry, exception)`` pairs for entries that
-    failed.
-
-    ``sleep`` (seconds) is applied between requests within the group, as a
-    courtesy pause for large sequential batches (e.g. the ~250-entry ``rab``
-    historical series) — negligible cost for small groups.
-    """
-    canon = expand_group(group_id)
-    if not canon:
-        raise ValueError(f"Unknown group: {group_id!r}")
-    entries = [e for g in canon for e in list_datasets(g)]
-    repo = DataRepository(output)
-    paths: list[Path] = []
-    with batch_progress("anac-fetcher", total=len(entries)) as batch_pbar:
-        for i, entry in enumerate(entries):
-            if sleep > 0 and i > 0 and not dry_run:
-                time.sleep(sleep)
-            try:
-                path = download_entry(
-                    entry, repo, dry_run=dry_run, show_progress=show_progress
-                )
-            except Exception as exc:
-                logger.warning("Failed to download %s: %s", entry["id"], exc)
-                if errors is not None:
-                    errors.append((entry, exc))
-            else:
-                paths.append(path)
-            finally:
-                batch_pbar.update()
-    return paths
+    """Download all datasets for one group (sequential or parallel if workers>1)."""
+    return download_all(
+        output,
+        groups=[group_id],
+        dry_run=dry_run,
+        show_progress=show_progress,
+        errors=errors,
+        sleep=sleep,
+        workers=workers,
+        on_bytes=on_bytes,
+    )
 
 
 def download_all(
@@ -129,17 +109,10 @@ def download_all(
     show_progress: bool = False,
     errors: list[DownloadError] | None = None,
     sleep: float = 0.0,
+    workers: int = 4,
+    on_bytes: Callable[[str, int, int], None] | None = None,
 ) -> list[Path]:
-    """Download all (or selected) groups.
-
-    Returns the destination paths of every entry that succeeded across all
-    groups. A group whose entries all fail (or that has no entries) does not
-    stop the remaining groups; pass ``errors`` (a list) to collect the
-    ``(entry, exception)`` pairs for every failed entry, across all groups.
-
-    ``sleep`` (seconds) is forwarded to :func:`download_group` and applied
-    between requests within each group.
-    """
+    """Download all (or selected) groups, in parallel."""
     from .catalog import ALL_GROUP_KEYS
 
     target_groups = groups if groups is not None else ALL_GROUP_KEYS
@@ -152,16 +125,56 @@ def download_all(
             if canon not in resolved:
                 resolved.append(canon)
 
+    entries = [e for g in resolved for e in list_datasets(g)]
+    repo = DataRepository(output)
     paths: list[Path] = []
-    for group_id in resolved:
-        paths.extend(
-            download_group(
-                group_id,
-                output,
-                dry_run=dry_run,
-                show_progress=show_progress,
-                errors=errors,
-                sleep=sleep,
-            )
-        )
+
+    def _do_download(i: int, entry: DatasetEntry) -> Path | None:
+        if sleep > 0 and i > 0 and not dry_run:
+            time.sleep(sleep)
+        try:
+            progress_cb = None
+            if on_bytes is not None:
+
+                def progress_cb(dl: int, tot: int) -> None:
+                    on_bytes(entry["id"], dl, tot)
+
+            # fallback to legacy show_progress if no on_bytes given
+            # if we are parallelizing and show_progress is true
+            # (from raw cli), it will be messy,
+            # but usually cli uses rich now.
+            if progress_cb is not None:
+                return download_entry(
+                    entry, repo, dry_run=dry_run, progress=progress_cb
+                )
+            elif show_progress:
+                return download_entry(
+                    entry, repo, dry_run=dry_run, show_progress=show_progress
+                )
+            else:
+                return download_entry(entry, repo, dry_run=dry_run)
+        except Exception as exc:
+            logger.warning("Failed to download %s: %s", entry["id"], exc)
+            if errors is not None:
+                errors.append((entry, exc))
+            return None
+
+    # Handle single worker cleanly (e.g. maybe progress bars rely on it)
+    if workers <= 1:
+        for i, entry in enumerate(entries):
+            res = _do_download(i, entry)
+            if res:
+                paths.append(res)
+        return paths
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_entry = {
+            executor.submit(_do_download, i, entry): entry
+            for i, entry in enumerate(entries)
+        }
+        for future in concurrent.futures.as_completed(future_to_entry):
+            res = future.result()
+            if res:
+                paths.append(res)
+
     return paths
