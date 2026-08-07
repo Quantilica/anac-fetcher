@@ -15,7 +15,6 @@ from .catalog import (
     list_datasets,
     resolve_group,
 )
-from .download import download_all, download_entry, download_file
 from .storage import DataRepository
 
 __all__ = [
@@ -24,9 +23,6 @@ __all__ = [
     "DatasetEntry",
     "GroupInfo",
     "DataRepository",
-    "download_all",
-    "download_entry",
-    "download_file",
     "expand_group",
     "list_datasets",
     "resolve_group",
