@@ -4,6 +4,7 @@
 
 Utilitário de linha de comando para baixar dados públicos da [ANAC](https://www.gov.br/anac/) (Agência Nacional de Aviação Civil): voos regulares (VRA), cadastro de aeronaves (RAB), ocorrências aeronáuticas investigadas pelo CENIPA e infraestrutura de aeródromos. Descobre datasets a partir de um catálogo declarativo e faz o download organizado por grupo, com manifestos de proveniência via `quantilica-core`.
 
+Para a documentação completa, consulte a [Documentação Oficial do Quantilica](https://docs.quantilica.com).
 ## Instalação
 
 ```bash

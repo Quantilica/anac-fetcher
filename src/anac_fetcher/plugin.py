@@ -15,6 +15,16 @@ from .storage import DataRepository
 def path_builder(
     output_dir: Path, entry: dict[str, Any], last_modified: dt.date | None
 ) -> Path:
+    """Build the local storage path for a dataset entry.
+
+    Args:
+        output_dir: The base output directory for downloaded files.
+        entry: The dataset entry metadata dict.
+        last_modified: Optional date representing when the remote file was last modified.
+
+    Returns:
+        The absolute Path where the file should be saved.
+    """
     return DataRepository(output_dir).path_for_entry(entry, last_modified=last_modified)
 
 

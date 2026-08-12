@@ -41,6 +41,11 @@ class DataRepository(BaseDataRepository):
     """Manages local storage for anac-fetcher files."""
 
     def __init__(self, root: Path | str):
+        """Initialize the repository.
+
+        Args:
+            root: Base directory where downloaded files will be stored.
+        """
         super().__init__(root)
 
     def path_for_entry(
@@ -49,7 +54,15 @@ class DataRepository(BaseDataRepository):
         *,
         last_modified: dt.date | None = None,
     ) -> Path:
-        """Compute the local path for a dataset entry."""
+        """Compute the local path for a dataset entry.
+
+        Args:
+            entry: The dataset entry dict containing metadata like group, ext, base_id.
+            last_modified: Optional timestamp of the remote file, used to version the local file.
+
+        Returns:
+            The absolute Path where the file should be saved.
+        """
         group_dir = _GROUP_DIRS[entry["group"]]
         ext = entry["ext"]
         base_id = entry["base_id"]

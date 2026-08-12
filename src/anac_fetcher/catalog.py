@@ -58,8 +58,14 @@ _MACRO_GROUPS: dict[str, list[str]] = {
 def resolve_group(key: str) -> str | None:
     """Resolve a group key or alias to a canonical group id.
 
-    Returns None if not found. Does not resolve macro-aliases (see
-    :func:`expand_group`), since those map to multiple groups.
+    Does not resolve macro-aliases (see :func:`expand_group`), since those
+    map to multiple groups.
+
+    Args:
+        key: The group key or alias to resolve.
+
+    Returns:
+        The canonical group id if found, otherwise None.
     """
     if key in GROUPS:
         return key
@@ -69,7 +75,12 @@ def resolve_group(key: str) -> str | None:
 def expand_group(key: str) -> list[str]:
     """Expand a group key, alias, or macro-alias to canonical group id(s).
 
-    Returns an empty list if the key is not recognized.
+    Args:
+        key: The group key, alias, or macro-alias to expand.
+
+    Returns:
+        A list of canonical group ids. Returns an empty list if the key
+        is not recognized.
     """
     if key in _MACRO_GROUPS:
         return list(_MACRO_GROUPS[key])
@@ -78,7 +89,18 @@ def expand_group(key: str) -> list[str]:
 
 
 def list_datasets(group: str | None = None) -> list[DatasetEntry]:
-    """Return all dataset entries, optionally filtered by group."""
+    """Return all dataset entries, optionally filtered by group.
+
+    Args:
+        group: The canonical group id or alias to filter datasets by.
+            If None, returns all datasets across all groups.
+
+    Returns:
+        A list of DatasetEntry objects.
+
+    Raises:
+        ValueError: If a group is specified but not found in the catalog.
+    """
     if group is not None:
         canon = resolve_group(group)
         if canon is None:
