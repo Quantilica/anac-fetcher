@@ -5,7 +5,7 @@ from typing import TypedDict
 
 class DatasetEntry(TypedDict):
     """Represents a single dataset entry to be downloaded.
-    
+
     Attributes:
         id: Unique identifier for this exact file.
         base_id: The base identifier for the dataset series.
@@ -33,7 +33,7 @@ class DatasetEntry(TypedDict):
 
 class GroupInfo(TypedDict):
     """Represents a logical group of dataset entries.
-    
+
     Attributes:
         name: Human-readable name for the group.
         entries: List of dataset entries belonging to this group.

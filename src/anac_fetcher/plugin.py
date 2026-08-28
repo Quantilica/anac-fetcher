@@ -20,7 +20,8 @@ def path_builder(
     Args:
         output_dir: The base output directory for downloaded files.
         entry: The dataset entry metadata dict.
-        last_modified: Optional date representing when the remote file was last modified.
+        last_modified: Optional date representing when the remote file was
+            last modified.
 
     Returns:
         The absolute Path where the file should be saved.

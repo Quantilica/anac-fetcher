@@ -57,8 +57,10 @@ class DataRepository(BaseDataRepository):
         """Compute the local path for a dataset entry.
 
         Args:
-            entry: The dataset entry dict containing metadata like group, ext, base_id.
-            last_modified: Optional timestamp of the remote file, used to version the local file.
+            entry: The dataset entry dict containing metadata like group, ext,
+                base_id.
+            last_modified: Optional timestamp of the remote file, used to version
+                the local file.
 
         Returns:
             The absolute Path where the file should be saved.
