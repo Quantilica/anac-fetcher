@@ -11,7 +11,17 @@ from anac_fetcher.catalog import (
 )
 from anac_fetcher.catalog_aerodromos import AERODROMO_GROUP_KEYS
 
-_NON_AERODROMO_GROUPS = {"vra", "rab", "ocorrencias"}
+_NON_AERODROMO_GROUPS = {
+    "vra",
+    "rab",
+    "ocorrencias",
+    "dados-estatisticos",
+    "drones",
+    "atrasos-cancelamentos",
+    "empresas-aereas",
+    "movimentacao-aeroportuaria",
+    "recomendacoes-seguranca",
+}
 
 
 def test_all_groups_present():
@@ -192,6 +202,161 @@ def test_aero_pzr_has_two_datasets():
         "aero-pzr-pzr-pezr-csv",
         "aero-pzr-pzr-pezr-json",
     }
+
+
+# ---------------------------------------------------------------------------
+# Dados Estatísticos do Transporte Aéreo
+# ---------------------------------------------------------------------------
+
+
+def test_dados_estatisticos_count():
+    entries = GROUPS["dados-estatisticos"]["entries"]
+    assert len(entries) == 4
+    assert all(e["year"] is None for e in entries)
+    assert {e["ext"] for e in entries} == {"csv", "json"}
+
+
+def test_dados_estatisticos_url_pattern():
+    csv = next(e for e in GROUPS["dados-estatisticos"]["entries"] if e["ext"] == "csv")
+    assert csv["url"].endswith("Dados_Estatisticos.csv")
+    decade = next(
+        e for e in GROUPS["dados-estatisticos"]["entries"] if "2000_a_2010" in e["url"]
+    )
+    assert decade["ext"] == "json"
+
+
+def test_dados_estatisticos_alias():
+    assert resolve_group("estatisticas") == "dados-estatisticos"
+
+
+# ---------------------------------------------------------------------------
+# Drones (SISANT)
+# ---------------------------------------------------------------------------
+
+
+def test_drones_has_snapshot_and_historical():
+    entries = GROUPS["drones"]["entries"]
+    static = [e for e in entries if e["year"] is None]
+    assert len(static) == 2
+    assert {e["ext"] for e in static} == {"csv", "json"}
+
+    hist = [e for e in entries if e["year"] is not None]
+    assert len(hist) > 0
+    assert min((e["year"], e["month"]) for e in hist) == (2022, 8)
+
+
+def test_drones_hist_url_pattern():
+    entry = next(
+        e
+        for e in GROUPS["drones"]["entries"]
+        if e["year"] == 2024 and e["month"] == 3 and e["ext"] == "csv"
+    )
+    assert entry["url"].endswith("Historico/SISANT_032024.csv")
+
+
+def test_drones_alias():
+    assert resolve_group("sisant") == "drones"
+
+
+# ---------------------------------------------------------------------------
+# Atrasos e cancelamentos
+# ---------------------------------------------------------------------------
+
+
+def test_atrasos_covers_year_2000_and_has_three_anexos():
+    entries = GROUPS["atrasos-cancelamentos"]["entries"]
+    years = {e["year"] for e in entries}
+    assert 2000 in years
+
+    jan_2000 = [e for e in entries if e["year"] == 2000 and e["month"] == 1]
+    assert len(jan_2000) == 6  # 3 anexos × csv/json
+    anexos = {e["name"].split("Anexo ")[1].split(" ")[0] for e in jan_2000}
+    assert anexos == {"I", "II", "III"}
+
+
+def test_atrasos_url_pattern():
+    entry = next(
+        e
+        for e in GROUPS["atrasos-cancelamentos"]["entries"]
+        if e["year"] == 2026 and e["month"] == 6 and e["ext"] == "json"
+    )
+    assert "Percentuais%20de%20atrasos%20e%20cancelamentos" in entry["url"]
+    assert "06%20-%20junho" in entry["url"]
+    assert entry["url"].endswith(".json")
+
+
+def test_atrasos_alias():
+    assert resolve_group("atrasos") == "atrasos-cancelamentos"
+
+
+# ---------------------------------------------------------------------------
+# Empresas Aéreas
+# ---------------------------------------------------------------------------
+
+
+def test_empresas_aereas_count():
+    entries = GROUPS["empresas-aereas"]["entries"]
+    assert len(entries) == 2
+    assert {e["ext"] for e in entries} == {"csv", "json"}
+    assert all(e["year"] is None for e in entries)
+
+
+def test_empresas_aereas_url_pattern():
+    csv = next(e for e in GROUPS["empresas-aereas"]["entries"] if e["ext"] == "csv")
+    assert csv["url"].endswith("pda_empresas_aereas_nacionais.csv")
+
+
+def test_empresas_aereas_alias():
+    assert resolve_group("empresas") == "empresas-aereas"
+
+
+# ---------------------------------------------------------------------------
+# Movimentação Aeroportuária
+# ---------------------------------------------------------------------------
+
+
+def test_movimentacao_csv_only_and_starts_2019():
+    entries = GROUPS["movimentacao-aeroportuaria"]["entries"]
+    assert len(entries) > 0
+    assert all(e["ext"] == "csv" for e in entries)
+    assert min(e["year"] for e in entries) == 2019
+    assert all(e["month"] in range(1, 13) for e in entries)
+
+
+def test_movimentacao_url_pattern():
+    entry = next(
+        e
+        for e in GROUPS["movimentacao-aeroportuaria"]["entries"]
+        if e["year"] == 2025 and e["month"] == 7
+    )
+    assert entry["url"].endswith("2025/Movimentacoes_Aeroportuarias_202507.csv")
+
+
+def test_movimentacao_alias():
+    assert resolve_group("movimentacao") == "movimentacao-aeroportuaria"
+
+
+# ---------------------------------------------------------------------------
+# Recomendações de Segurança
+# ---------------------------------------------------------------------------
+
+
+def test_recomendacoes_count():
+    entries = GROUPS["recomendacoes-seguranca"]["entries"]
+    assert len(entries) == 2
+    assert {e["ext"] for e in entries} == {"csv", "json"}
+    assert all(e["year"] is None for e in entries)
+
+
+def test_recomendacoes_url_pattern():
+    csv = next(
+        e for e in GROUPS["recomendacoes-seguranca"]["entries"] if e["ext"] == "csv"
+    )
+    assert csv["url"].endswith("RECOMENDACAO_SEGURANCA.csv")
+
+
+def test_recomendacoes_alias():
+    assert resolve_group("recomendacoes") == "recomendacoes-seguranca"
 
 
 # ---------------------------------------------------------------------------

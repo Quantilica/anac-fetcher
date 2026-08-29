@@ -1,10 +1,16 @@
 """ANAC unified dataset catalog.
 
 Aggregates all groups from all catalog modules:
-- catalog_vra:          Voo Regular Ativo (voos, atrasos, cancelamentos)
-- catalog_rab:           Registro Aeronáutico Brasileiro (cadastro de aeronaves)
-- catalog_ocorrencias:    Ocorrências Aeronáuticas (CENIPA)
-- catalog_aerodromos:      Infraestrutura de aeródromos
+- catalog_vra:                  Voo Regular Ativo (voos, atrasos, cancelamentos)
+- catalog_rab:                   Registro Aeronáutico Brasileiro (cadastro de aeronaves)
+- catalog_ocorrencias:            Ocorrências Aeronáuticas (CENIPA)
+- catalog_aerodromos:              Infraestrutura de aeródromos
+- catalog_dados_estatisticos:      Dados Estatísticos do Transporte Aéreo
+- catalog_drones:                  Drones cadastrados (SISANT)
+- catalog_atrasos:                 Percentuais de atrasos e cancelamentos
+- catalog_empresas_aereas:         Empresas Aéreas Nacionais
+- catalog_movimentacao:            Dados de Movimentação Aeroportuária
+- catalog_recomendacoes:           Recomendações de Segurança Aeronáutica
 
 Public API is stable across future waves (mais grupos podem ser adicionados
 sem quebrar esta interface).
@@ -16,8 +22,23 @@ from .catalog_aerodromos import (
     GROUP_ALIASES_AERODROMOS,
     GROUPS_AERODROMOS,
 )
+from .catalog_atrasos import GROUP_ALIASES_ATRASOS, GROUPS_ATRASOS
+from .catalog_dados_estatisticos import (
+    GROUP_ALIASES_DADOS_ESTATISTICOS,
+    GROUPS_DADOS_ESTATISTICOS,
+)
+from .catalog_drones import GROUP_ALIASES_DRONES, GROUPS_DRONES
+from .catalog_empresas_aereas import (
+    GROUP_ALIASES_EMPRESAS_AEREAS,
+    GROUPS_EMPRESAS_AEREAS,
+)
+from .catalog_movimentacao import GROUP_ALIASES_MOVIMENTACAO, GROUPS_MOVIMENTACAO
 from .catalog_ocorrencias import GROUP_ALIASES_OCORRENCIAS, GROUPS_OCORRENCIAS
 from .catalog_rab import GROUP_ALIASES_RAB, GROUPS_RAB
+from .catalog_recomendacoes import (
+    GROUP_ALIASES_RECOMENDACOES,
+    GROUPS_RECOMENDACOES,
+)
 from .catalog_vra import GROUP_ALIASES_VRA, GROUPS_VRA
 
 __all__ = [
@@ -37,6 +58,12 @@ GROUPS: dict[str, GroupInfo] = {
     **GROUPS_RAB,
     **GROUPS_OCORRENCIAS,
     **GROUPS_AERODROMOS,
+    **GROUPS_DADOS_ESTATISTICOS,
+    **GROUPS_DRONES,
+    **GROUPS_ATRASOS,
+    **GROUPS_EMPRESAS_AEREAS,
+    **GROUPS_MOVIMENTACAO,
+    **GROUPS_RECOMENDACOES,
 }
 
 GROUP_ALIASES: dict[str, str] = {
@@ -44,6 +71,12 @@ GROUP_ALIASES: dict[str, str] = {
     **GROUP_ALIASES_RAB,
     **GROUP_ALIASES_OCORRENCIAS,
     **GROUP_ALIASES_AERODROMOS,
+    **GROUP_ALIASES_DADOS_ESTATISTICOS,
+    **GROUP_ALIASES_DRONES,
+    **GROUP_ALIASES_ATRASOS,
+    **GROUP_ALIASES_EMPRESAS_AEREAS,
+    **GROUP_ALIASES_MOVIMENTACAO,
+    **GROUP_ALIASES_RECOMENDACOES,
 }
 
 ALL_GROUP_KEYS: list[str] = list(GROUPS)

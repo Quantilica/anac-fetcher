@@ -34,6 +34,12 @@ _GROUP_DIRS: dict[str, str] = {
     "aero-heliponto-privado": "aerodromos-heliponto-privado",
     "aero-pzr": "aerodromos-pzr",
     "aero-plano-diretor": "aerodromos-plano-diretor",
+    "dados-estatisticos": "dados-estatisticos-transporte-aereo",
+    "drones": "drones-sisant",
+    "atrasos-cancelamentos": "atrasos-cancelamentos",
+    "empresas-aereas": "empresas-aereas",
+    "movimentacao-aeroportuaria": "movimentacao-aeroportuaria",
+    "recomendacoes-seguranca": "recomendacoes-seguranca",
 }
 
 

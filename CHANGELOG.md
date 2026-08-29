@@ -1,13 +1,26 @@
 # Changelog
 
-## [0.3.0] - 2026-08-07
-### Alterado
-- Refatoração arquitetural: Remoção de dependências (`quantilica-cli` e `quantilica-catalog`) e limpeza de imports. Os fetchers agora são pacotes de extração puros, dependendo estritamente do `quantilica-core`.
-
 Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
+
+## [Não lançado]
+
+### Adicionado
+
+- 6 novos grupos de dados: `dados-estatisticos` (Dados Estatísticos do
+  Transporte Aéreo), `drones` (cadastro SISANT, snapshot + histórico mensal
+  desde 2022-08), `atrasos-cancelamentos` (percentuais de atrasos e
+  cancelamentos, mensal desde 2000), `empresas-aereas` (empresas aéreas
+  nacionais), `movimentacao-aeroportuaria` (movimentação aeroportuária,
+  mensal desde 2019, apenas CSV) e `recomendacoes-seguranca` (recomendações
+  de segurança aeronáutica) — ampliando o catálogo de 4 para 10 grupos e de
+  ~700 para ~3.0k datasets.
+
+## [0.3.0] - 2026-08-07
+### Alterado
+- Refatoração arquitetural: Remoção de dependências (`quantilica-cli` e `quantilica-catalog`) e limpeza de imports. Os fetchers agora são pacotes de extração puros, dependendo estritamente do `quantilica-core`.
 
 ## [0.1.0] - 2026-07-21
 

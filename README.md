@@ -2,7 +2,7 @@
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square) ![Python](https://img.shields.io/badge/python-3.12+-blue.svg?style=flat-square)
 
-Utilitário de linha de comando para baixar dados públicos da [ANAC](https://www.gov.br/anac/) (Agência Nacional de Aviação Civil): voos regulares (VRA), cadastro de aeronaves (RAB), ocorrências aeronáuticas investigadas pelo CENIPA e infraestrutura de aeródromos. Descobre datasets a partir de um catálogo declarativo e faz o download organizado por grupo, com manifestos de proveniência via `quantilica-core`.
+Utilitário de linha de comando para baixar dados públicos da [ANAC](https://www.gov.br/anac/) (Agência Nacional de Aviação Civil): voos regulares (VRA), dados estatísticos do transporte aéreo, percentuais de atrasos e cancelamentos, cadastro de aeronaves (RAB), drones (SISANT), empresas aéreas, movimentação aeroportuária, ocorrências e recomendações de segurança aeronáutica, e infraestrutura de aeródromos. Descobre datasets a partir de um catálogo declarativo e faz o download organizado por grupo, com manifestos de proveniência via `quantilica-core`.
 
 Para a documentação completa, consulte a [Documentação Oficial do Quantilica](https://docs.quantilica.com).
 ## Instalação
@@ -24,7 +24,7 @@ uv add anac-fetcher
 ### Listar os datasets disponíveis
 
 ```bash
-anac-fetcher discover
+anac-fetcher list
 ```
 
 ### Sincronizar (baixar) datasets
@@ -43,20 +43,32 @@ anac-fetcher sync aerodromos
 anac-fetcher sync --dry-run
 ```
 
-O `sync` aplica uma pausa de 0.3s entre downloads por padrão (cortesia ao
-servidor em grupos grandes como `rab`, com ~250 arquivos); ajuste com
-`--sleeptime SEGUNDOS` se necessário. Falhas pontuais (404 de meses ainda
-não publicados, ou de formatos que não existem para aquele mês) são
-normais, não interrompem a sincronização e aparecem no resumo final — rode
-`sync` de novo para tentar só o que faltou.
+O `sync` baixa em paralelo (`--workers`, padrão 4) e pula o que já está
+atualizado. Falhas pontuais (404 de meses ainda não publicados, ou de
+formatos que não existem para aquele mês) são normais, não interrompem a
+sincronização e aparecem no resumo final — rode `sync` de novo para tentar
+só o que faltou.
 
-Grupos disponíveis: `vra` (Voo Regular Ativo), `rab` (Registro Aeronáutico
-Brasileiro), `ocorrencias` (Ocorrências Aeronáuticas — CENIPA) e os grupos de
-aeródromos (`aero-lista-publicos`, `aero-pistas-pouso`, `aero-pistas-taxi`,
-`aero-patio`, `aero-posicoes-estacionamento`, `aero-helipontos-publicos`,
-`aero-excluidos`, `aero-seguranca`, `aero-lista-privados`, `aero-helideck`,
-`aero-heliponto-privado`, `aero-pzr`, `aero-plano-diretor`), agrupáveis via
-`aerodromos`.
+Grupos disponíveis:
+
+- `vra` (Voo Regular Ativo) · `atrasos-cancelamentos` (percentuais de
+  atrasos e cancelamentos, desde 2000) · `dados-estatisticos` (dados
+  estatísticos do transporte aéreo)
+- `rab` (Registro Aeronáutico Brasileiro) · `drones` (cadastro de drones —
+  SISANT, snapshot + histórico mensal desde 2022-08) · `empresas-aereas`
+  (empresas aéreas nacionais)
+- `ocorrencias` (Ocorrências Aeronáuticas — CENIPA) ·
+  `recomendacoes-seguranca` (recomendações de segurança aeronáutica)
+- `movimentacao-aeroportuaria` (movimentação de passageiros, carga e
+  aeronaves por aeroporto, desde 2019 — apenas CSV, o JSON mensal é muito
+  volumoso)
+- grupos de aeródromos (`aero-lista-publicos`, `aero-pistas-pouso`,
+  `aero-pistas-taxi`, `aero-patio`, `aero-posicoes-estacionamento`,
+  `aero-helipontos-publicos`, `aero-excluidos`, `aero-seguranca`,
+  `aero-lista-privados`, `aero-helideck`, `aero-heliponto-privado`,
+  `aero-pzr`, `aero-plano-diretor`), agrupáveis via `aerodromos`
+
+Use `anac-fetcher list` para ver os nomes canônicos e aliases.
 
 ### Integração com `quantilica-cli`
 
@@ -64,7 +76,7 @@ Se o `quantilica-cli` estiver instalado no mesmo ambiente, o `anac-fetcher` é
 detectado automaticamente como plugin:
 
 ```bash
-quantilica anac discover
+quantilica anac list
 ```
 
 ## API Python
