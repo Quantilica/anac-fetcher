@@ -27,12 +27,12 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --group dev
+        run: uv sync --group dev --extra analysis --python ${{ matrix.python-version }} --index https://index.quantilica.com/simple/ --index-strategy unsafe-best-match
 
       - name: Lint with ruff
         run: |
-          uv run ruff check src/ tests/
-          uv run ruff format --check src/ tests/
+          uv run --no-sync ruff check src/ tests/
+          uv run --no-sync ruff format --check src/ tests/
 
       - name: Run tests
-        run: uv run pytest
+        run: uv run --no-sync pytest

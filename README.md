@@ -70,6 +70,28 @@ Grupos disponíveis:
 
 Use `anac-fetcher list` para ver os nomes canônicos e aliases.
 
+### Converter para Parquet
+
+Após o `sync`, os dados brutos podem ser convertidos para Parquet (requer o
+extra `[analysis]`):
+
+```bash
+# Converter todos os grupos
+anac-fetcher convert -i ./dados/anac -o ./dados/anac
+
+# Converter grupos específicos (aceita aliases)
+anac-fetcher convert ocorrencias vra -i ./dados/anac -o ./dados/anac
+
+# Pipeline completo: sync + convert dos grupos escolhidos
+anac-fetcher pipeline ocorrencias -o ./dados/anac
+```
+
+A conversão é **idempotente** (pula o que já foi convertido), lê CSV/XLS/XLSX/JSON
+(com preâmbulo "Atualizado em:" e separador auto-detectados, linhas ragged
+truncadas) e injeta a proveniência do `DownloadManifest` nos metadados do
+Parquet (`quantilica.*`). Grupos-chave (`ocorrencias`, `recomendacoes-seguranca`,
+`vra`, `aero-lista-publicos`) têm `DataContract` de validação aplicado.
+
 ### Integração com `quantilica-cli`
 
 Se o `quantilica-cli` estiver instalado no mesmo ambiente, o `anac-fetcher` é

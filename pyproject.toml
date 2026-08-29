@@ -27,6 +27,12 @@ dependencies = [
     "quantilica-core>=0.4.0",
 ]
 
+[project.optional-dependencies]
+analysis = [
+    "quantilica-analytics>=0.2.0",
+    "fastexcel>=0.12.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/Quantilica/anac-fetcher"
 Repository = "https://github.com/Quantilica/anac-fetcher"
@@ -57,6 +63,9 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/anac_fetcher"]
+
+[tool.uv.sources]
+quantilica-analytics = { workspace = true }
 
 [build-system]
 requires = ["hatchling>=1.27"]
