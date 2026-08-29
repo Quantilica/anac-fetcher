@@ -1,6 +1,6 @@
 [project]
 name = "anac-fetcher"
-version = "0.3.0"
+version = "0.4.0"
 description = "A commandline utility to download ANAC (Agência Nacional de Aviação Civil) open data"
 readme = "README.md"
 authors = [
