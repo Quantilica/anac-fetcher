@@ -7,10 +7,15 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import typer
-from quantilica.cli.sdk import FetcherApp
+from quantilica.cli.sdk import FetcherApp, make_resolve_groups
 
-from .catalog import GROUP_ALIASES, GROUPS, list_datasets, resolve_group
+from .catalog import GROUP_ALIASES, GROUPS, list_datasets
 from .storage import DataRepository
+
+# Resolver canônico — make_resolve_groups espera alias -> lista de ids canônicos.
+resolve_groups = make_resolve_groups(
+    GROUPS, {alias: [canon] for alias, canon in GROUP_ALIASES.items()}
+)
 
 
 def path_builder(
@@ -33,6 +38,8 @@ def path_builder(
 def _resolve_groups(groups: list[str] | None) -> list[str]:
     """Resolve nomes de grupo/aliases para ids canônicos; None → todos.
 
+    Delega ao ``make_resolve_groups`` canônico do ``quantilica.cli.sdk``.
+
     Args:
         groups (list[str] | None): Nomes ou aliases de grupo informados na CLI.
 
@@ -42,15 +49,10 @@ def _resolve_groups(groups: list[str] | None) -> list[str]:
     Raises:
         typer.BadParameter: Se um grupo não for reconhecido.
     """
-    if groups is None:
-        return list(GROUPS)
-    resolved: list[str] = []
-    for name in groups:
-        canon = resolve_group(name)
-        if canon is None:
-            raise typer.BadParameter(f"Grupo desconhecido: {name!r}")
-        resolved.append(canon)
-    return resolved
+    try:
+        return resolve_groups(groups)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from None
 
 
 fetcher = FetcherApp(

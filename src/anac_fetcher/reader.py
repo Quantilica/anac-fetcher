@@ -18,7 +18,9 @@ from pathlib import Path
 from typing import Any
 
 import polars as pl
-from quantilica.analytics.reader import read_brazilian_csv
+from quantilica.analytics.reader import normalize_brazilian_numbers, read_brazilian_csv
+from quantilica.analytics.writer import to_parquet
+from quantilica.core.manifests import DownloadManifest, manifest_sidecar_path
 
 logger = logging.getLogger(__name__)
 
@@ -283,6 +285,10 @@ def read_file(
 def normalize_dtypes(df: pl.DataFrame, spec: dict[str, Any]) -> pl.DataFrame:
     """Normaliza dtypes: números com vírgula decimal e strings sem espaços.
 
+    A conversão de números brasileiros (``,`` decimal, ``.`` de milhar) é
+    delegada a ``quantilica.analytics.reader.normalize_brazilian_numbers``;
+    colunas ausentes no DataFrame são ignoradas (best-effort).
+
     Args:
         df (pl.DataFrame): O DataFrame a normalizar.
         spec (dict[str, Any]): Especificação com ``numeric_columns``.
@@ -290,16 +296,9 @@ def normalize_dtypes(df: pl.DataFrame, spec: dict[str, Any]) -> pl.DataFrame:
     Returns:
         pl.DataFrame: O DataFrame normalizado.
     """
-    numeric = set(spec.get("numeric_columns", []))
-    df = df.with_columns(
-        [
-            pl.col(col)
-            .str.replace_all(r"\.", "")
-            .str.replace_all(",", ".")
-            .cast(pl.Float64, strict=False)
-            for col in numeric
-            if col in df.columns and df[col].dtype == pl.Utf8
-        ]
+    numeric = list(spec.get("numeric_columns", []))
+    df = normalize_brazilian_numbers(
+        df, [c for c in numeric if c in df.columns and df[c].dtype == pl.Utf8]
     )
     df = df.with_columns(
         [
@@ -346,6 +345,12 @@ def write_parquet(
 ) -> Path:
     """Escreve um DataFrame como Parquet (zstd) com proveniência opcional.
 
+    A escrita é atômica (write-temp-rename) e, quando o arquivo bruto de
+    origem tem sidecar ``.manifest.json``, o manifest de download é
+    reconstruído e delegado ao ``to_parquet`` canônico: os metadados
+    ``quantilica.*`` são injetados no Parquet e um sidecar de proveniência é
+    escrito ao lado do destino.
+
     Args:
         df (pl.DataFrame): O DataFrame a escrever.
         target (Path): Caminho de destino do Parquet.
@@ -355,7 +360,39 @@ def write_parquet(
     Returns:
         Path: O caminho do Parquet escrito.
     """
-    target.parent.mkdir(parents=True, exist_ok=True)
-    metadata = provenance_metadata(source_path) if source_path else {}
-    df.write_parquet(target, compression="zstd", metadata=metadata)
-    return target
+    manifest = _sidecar_manifest(source_path) if source_path else None
+    return to_parquet(df, target, manifest=manifest)
+
+
+def _sidecar_manifest(path: Path) -> DownloadManifest | None:
+    """Reconstroi o ``DownloadManifest`` do sidecar ``{path}.manifest.json``.
+
+    Args:
+        path (Path): Caminho do arquivo bruto de origem.
+
+    Returns:
+        DownloadManifest | None: O manifest reconstruído, ou None quando o
+            sidecar não existe ou é inválido.
+    """
+    sidecar = manifest_sidecar_path(path)
+    if not sidecar.exists():
+        return None
+    try:
+        data = json.loads(sidecar.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.warning("Manifest inválido %s: %s", sidecar, exc)
+        return None
+    try:
+        size_bytes = int(data.get("size_bytes") or path.stat().st_size)
+    except OSError:
+        size_bytes = 0
+    return DownloadManifest(
+        source_id=str(data.get("source_id", "")),
+        dataset_id=str(data.get("dataset_id", "")),
+        url=str(data.get("url", "")),
+        fetched_at=str(data.get("fetched_at", "")),
+        sha256=str(data.get("sha256", "")),
+        size_bytes=size_bytes,
+        path=str(path),
+        producer=data.get("producer") or None,
+    )

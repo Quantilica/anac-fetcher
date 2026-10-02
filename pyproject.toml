@@ -1,6 +1,6 @@
 [project]
 name = "anac-fetcher"
-version = "0.4.0"
+version = "0.4.1"
 description = "A commandline utility to download ANAC (Agência Nacional de Aviação Civil) open data"
 readme = "README.md"
 authors = [
@@ -29,7 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 analysis = [
-    "quantilica-analytics>=0.2.0",
+    "quantilica-analytics>=0.3.0",
     "fastexcel>=0.12.0",
 ]
 

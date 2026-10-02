@@ -5,6 +5,24 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.4.1] - 2026-10-02
+
+### Alterado
+
+- **Onda 3A (padronização/deduplicação):** `reader.normalize_dtypes` delega a
+  conversão de números brasileiros a
+  `quantilica.analytics.reader.normalize_brazilian_numbers` (eliminada a
+  reimplantação local de vírgula decimal/sentinela).
+- **Onda 3A:** `reader.write_parquet` delega ao
+  `quantilica.analytics.writer.to_parquet` canônico — escrita atômica
+  (write-temp-rename) e, com manifest do download reconstruído do sidecar do
+  arquivo bruto, proveniência `quantilica.*` injetada no Parquet + sidecar
+  `.manifest.json` escrito ao lado do destino.
+- **Onda 3A:** `plugin.py` usa o resolver canônico `make_resolve_groups`
+  (`quantilica.cli.sdk`); removido o loop duplicado de resolução de grupos.
+- Extra `[analysis]`: pin elevado para `quantilica-analytics>=0.3.0`
+  (`normalize_brazilian_numbers` + `to_parquet` + `manifest_to_metadata`).
+
 ## [0.4.0] - 2026-08-29
 
 ### Adicionado
