@@ -12,14 +12,14 @@ from __future__ import annotations
 import json
 import logging
 import re
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Any
 
 import polars as pl
 from quantilica.analytics.reader import normalize_brazilian_numbers, read_brazilian_csv
 from quantilica.analytics.writer import to_parquet
+from quantilica.core.exceptions import StorageError
+from quantilica.core.files import decompress_archive
 from quantilica.core.manifests import DownloadManifest, manifest_sidecar_path
 
 logger = logging.getLogger(__name__)
@@ -87,6 +87,11 @@ def parse_filename(path: Path) -> dict[str, Any]:
 def decompress(path: Path) -> Path:
     """Descompacta um arquivo ZIP/7z e retorna o primeiro arquivo de dados.
 
+    A extração é delegada a ``quantilica.core.files.decompress_archive``
+    (nativa para ZIP/TAR com proteção contra path traversal, fallback
+    ``7z``). O contrato público do módulo é preservado: falhas de extração
+    sobem como ``RuntimeError``.
+
     Args:
         path (Path): O caminho do arquivo compactado.
 
@@ -94,29 +99,15 @@ def decompress(path: Path) -> Path:
         Path: O caminho do arquivo extraído (primeiro csv/xls/xlsx/json).
 
     Raises:
-        RuntimeError: Se o 7z falhar ou não produzir arquivos.
+        RuntimeError: Se a extração falhar ou não produzir arquivos de dados.
     """
     logger.info("Descompactando %s", path)
-    tmp_dir = Path(tempfile.mkdtemp(prefix="anac_"))
-    command = ["7z", "e", str(path), f"-o{tmp_dir}"]
-    result = subprocess.run(command, capture_output=True)
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"7z falhou ao descompactar {path}: "
-            f"{result.stderr.decode(errors='replace')}"
+    try:
+        return decompress_archive(
+            path, target_extensions=(".csv", ".xls", ".xlsx", ".json")
         )
-    extracted = [p for p in tmp_dir.iterdir() if p.is_file()]
-    if not extracted:
-        raise RuntimeError(f"7z não produziu arquivos de {path}")
-    data_file = next(
-        (
-            p
-            for p in extracted
-            if p.suffix.lower() in (".csv", ".xls", ".xlsx", ".json")
-        ),
-        extracted[0],
-    )
-    return data_file
+    except StorageError as exc:
+        raise RuntimeError(f"falha ao descompactar {path}: {exc}") from exc
 
 
 def _preamble_rows(path: Path) -> int:
