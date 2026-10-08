@@ -15,9 +15,18 @@ import re
 from pathlib import Path
 from typing import Any
 
-import polars as pl
-from quantilica.analytics.reader import normalize_brazilian_numbers, read_brazilian_csv
-from quantilica.analytics.writer import to_parquet
+try:
+    import polars as pl
+    from quantilica.analytics.reader import (
+        normalize_brazilian_numbers,
+        read_brazilian_csv,
+    )
+    from quantilica.analytics.writer import to_parquet
+except ImportError as exc:
+    raise ImportError(
+        "anac_fetcher.reader requer o extra 'analysis': "
+        "pip install 'anac-fetcher[analysis]'"
+    ) from exc
 from quantilica.core.exceptions import StorageError
 from quantilica.core.files import decompress_archive
 from quantilica.core.manifests import DownloadManifest, manifest_sidecar_path

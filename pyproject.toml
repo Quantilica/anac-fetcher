@@ -29,6 +29,7 @@ dependencies = [
 
 [project.optional-dependencies]
 analysis = [
+    "polars>=1.0.0",
     "quantilica-analytics>=0.3.0",
     "fastexcel>=0.12.0",
 ]

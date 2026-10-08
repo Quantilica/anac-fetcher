@@ -6,8 +6,14 @@ conjunto de colunas esperado (drift de schema) e aplica cast no `wrangling`
 (best-effort: falha loga warning sem abortar a conversão).
 """
 
-import polars as pl
-from quantilica.analytics.schema import DataContract, Field
+try:
+    import polars as pl
+    from quantilica.analytics.schema import DataContract, Field
+except ImportError as exc:
+    raise ImportError(
+        "anac_fetcher.contracts requer o extra 'analysis': "
+        "pip install 'anac-fetcher[analysis]'"
+    ) from exc
 
 _OCORRENCIAS_COLUMNS = [
     "Numero_da_Ocorrencia",

@@ -11,6 +11,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `cli.py` protege o import do plugin; sem o host a CLI standalone sai com
   código 1 e orienta `quantilica install <fonte>`.
 - `reader.decompress` agora delega a descompressão de arquivos brutos para `quantilica.core.files.decompress_archive`, eliminando lógica local duplicada.
+- `cli.py` ganha o bloco `if __name__ == "__main__": main()` (paridade com
+  `bcb-sgs-fetcher`).
+- `reader.py`, `contracts.py` e `wrangling.py`: imports de `polars`/
+  `quantilica.analytics` agora falham com mensagem acionável orientando o
+  extra `analysis` (`pip install 'anac-fetcher[analysis]'`).
+- Extra `analysis` declara `polars>=1.0.0` explicitamente.
 
 ## [0.4.1] - 2026-10-02
 
