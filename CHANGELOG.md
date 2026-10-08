@@ -8,6 +8,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Não lançado]
 
 ### Alterado
+- `cli.py` protege o import do plugin; sem o host a CLI standalone sai com
+  código 1 e orienta `quantilica install <fonte>`.
 - `reader.decompress` agora delega a descompressão de arquivos brutos para `quantilica.core.files.decompress_archive`, eliminando lógica local duplicada.
 
 ## [0.4.1] - 2026-10-02
