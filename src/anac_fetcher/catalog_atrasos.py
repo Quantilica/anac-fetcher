@@ -40,6 +40,10 @@ _MESES_PT = {
 
 _ANEXOS = ("I", "II", "III")
 
+# Meses em que a ANAC não publicou os dados (confirmado via HTTP 404 no
+# servidor): junho e julho de 2014 (Copa do Mundo no Brasil).
+_MISSING_MONTHS = {(2014, 6), (2014, 7)}
+
 # Última competência conhecida no catálogo (dados de meses recentes podem
 # ainda não estar publicados; falhas de download individuais não interrompem
 # o restante da sincronização — ver download.download_group).
@@ -73,6 +77,8 @@ def _atrasos_entries_list() -> list[DatasetEntry]:
         else:
             max_month = 12
         for month in range(1, max_month + 1):
+            if (year, month) in _MISSING_MONTHS:
+                continue
             for anexo in _ANEXOS:
                 for ext in ("csv", "json"):
                     entries.append(_atraso_entry(year, month, anexo, ext))

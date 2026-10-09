@@ -289,6 +289,22 @@ def test_atrasos_alias():
     assert resolve_group("atrasos") == "atrasos-cancelamentos"
 
 
+def test_atrasos_missing_2014_world_cup_months_excluded():
+    entries = GROUPS["atrasos-cancelamentos"]["entries"]
+    assert not any(e["year"] == 2014 and e["month"] in (6, 7) for e in entries), (
+        "2014-06/07 were never published (HTTP 404)"
+    )
+
+
+def test_atrasos_2014_neighboring_months_present():
+    entries = GROUPS["atrasos-cancelamentos"]["entries"]
+    for month in (5, 8):
+        month_entries = [
+            e for e in entries if e["year"] == 2014 and e["month"] == month
+        ]
+        assert len(month_entries) == 6  # 3 anexos × csv/json
+
+
 # ---------------------------------------------------------------------------
 # Empresas Aéreas
 # ---------------------------------------------------------------------------
@@ -319,8 +335,16 @@ def test_movimentacao_csv_only_and_starts_2019():
     entries = GROUPS["movimentacao-aeroportuaria"]["entries"]
     assert len(entries) > 0
     assert all(e["ext"] == "csv" for e in entries)
-    assert min(e["year"] for e in entries) == 2019
+    assert min((e["year"], e["month"]) for e in entries) == (2019, 3)
     assert all(e["month"] in range(1, 13) for e in entries)
+
+
+def test_movimentacao_missing_2019_early_months_excluded():
+    entries = GROUPS["movimentacao-aeroportuaria"]["entries"]
+    assert not any(e["year"] == 2019 and e["month"] in (1, 2) for e in entries)
+    assert any(e["year"] == 2019 and e["month"] == 3 for e in entries)
+    assert not any("Movimentacoes_Aeroportuarias_201901" in e["url"] for e in entries)
+    assert not any("Movimentacoes_Aeroportuarias_201902" in e["url"] for e in entries)
 
 
 def test_movimentacao_url_pattern():

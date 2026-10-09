@@ -54,7 +54,9 @@ def _movimentacao_entries_list() -> list[DatasetEntry]:
             max_month = max(1, _LAST_MONTH - 2)  # ~2 months lag
         else:
             max_month = 12
-        for month in range(1, max_month + 1):
+        # A publicação só iniciou em 2019-03; 2019-01/02 retornam 404.
+        start_month = 3 if year == _START_YEAR else 1
+        for month in range(start_month, max_month + 1):
             entries.append(_movimentacao_entry(year, month))
     return entries
 
