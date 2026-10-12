@@ -41,6 +41,32 @@ def test_convert_one_writes_partitioned_parquet(tmp_path):
     assert pl.read_parquet(target).shape == (1, 2)
 
 
+def test_convert_atrasos_anexos_do_not_overwrite(tmp_path):
+    src = _make_group_input(
+        tmp_path,
+        "atrasos-cancelamentos",
+        {
+            "atrasos-cancelamentos_2001-05_anexo-i@20260805.csv": "A;B\n1;2\n",
+            "atrasos-cancelamentos_2001-05_anexo-ii@20260805.csv": "A;B\n3;4\n",
+            "atrasos-cancelamentos_2001-05_anexo-iii@20260805.csv": "A;B\n5;6\n",
+        },
+    )
+    written = []
+    for anexo in ("i", "ii", "iii"):
+        raw = (
+            src
+            / "atrasos-cancelamentos"
+            / f"atrasos-cancelamentos_2001-05_anexo-{anexo}@20260805.csv"
+        )
+        written.extend(convert_one("atrasos-cancelamentos", raw, tmp_path / "output"))
+    names = sorted(p.name for p in written)
+    assert names == [
+        "atrasos-cancelamentos_2001-05_anexo-i@20260805.parquet",
+        "atrasos-cancelamentos_2001-05_anexo-ii@20260805.parquet",
+        "atrasos-cancelamentos_2001-05_anexo-iii@20260805.parquet",
+    ]
+
+
 def test_convert_one_json(tmp_path):
     src = _make_group_input(
         tmp_path,

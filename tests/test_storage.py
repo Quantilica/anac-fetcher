@@ -1,6 +1,7 @@
 """Tests for anac_fetcher.storage."""
 
 import datetime as dt
+from pathlib import Path
 
 from anac_fetcher.catalog import GROUPS, list_datasets
 from anac_fetcher.storage import _GROUP_DIRS, DataRepository
@@ -97,17 +98,32 @@ def test_path_for_drones_hist_entry(tmp_path):
     assert "drones-hist_2024-03@20260801" in path.name
 
 
+def test_path_for_static_entry_ignores_slug(tmp_path):
+    repo = DataRepository(tmp_path)
+    entry = dict(
+        next(e for e in list_datasets("rab") if e["ext"] == "csv"),
+    )
+    entry["slug"] = "anexo-i"
+    date = dt.date(2026, 6, 1)
+    path = repo.path_for_entry(entry, last_modified=date)
+    assert "rab-atual-csv@20260601.csv" in path.name
+    assert "anexo-i" not in path.name
+
+
 def test_path_for_atrasos_entry(tmp_path):
     repo = DataRepository(tmp_path)
     entry = next(
         e
         for e in list_datasets("atrasos-cancelamentos")
-        if e["year"] == 2026 and e["month"] == 6 and e["ext"] == "csv"
+        if e["year"] == 2026
+        and e["month"] == 6
+        and e["ext"] == "csv"
+        and "anexo-ii" in e["id"]
     )
     date = dt.date(2026, 8, 5)
     path = repo.path_for_entry(entry, last_modified=date)
     assert path.parent.name == "atrasos-cancelamentos"
-    assert "atrasos-cancelamentos_2026-06@20260805" in path.name
+    assert "atrasos-cancelamentos_2026-06_anexo-ii@20260805.csv" in path.name
 
 
 def test_path_for_movimentacao_entry(tmp_path):
@@ -156,3 +172,44 @@ def test_vra_entries_produce_different_paths(tmp_path):
     date = dt.date(2026, 6, 1)
     paths = [repo.path_for_entry(e, last_modified=date) for e in entries]
     assert len(paths) == len(set(paths)), "Duplicate paths in vra group"
+
+
+def test_atrasos_anexo_variants_produce_six_distinct_stable_paths(tmp_path):
+    repo = DataRepository(tmp_path)
+    date = dt.date(2026, 8, 5)
+    month_entries = [
+        e
+        for e in list_datasets("atrasos-cancelamentos")
+        if e["year"] == 2001 and e["month"] == 5
+    ]
+    assert len(month_entries) == 6  # 3 anexos × csv/json
+    names = [repo.path_for_entry(e, last_modified=date).name for e in month_entries]
+    assert len(names) == len(set(names)), "Duplicate paths for atrasos anexo variants"
+    for expected in (
+        "atrasos-cancelamentos_2001-05_anexo-i@20260805.csv",
+        "atrasos-cancelamentos_2001-05_anexo-ii@20260805.csv",
+        "atrasos-cancelamentos_2001-05_anexo-iii@20260805.csv",
+        "atrasos-cancelamentos_2001-05_anexo-i@20260805.json",
+        "atrasos-cancelamentos_2001-05_anexo-ii@20260805.json",
+        "atrasos-cancelamentos_2001-05_anexo-iii@20260805.json",
+    ):
+        assert expected in names
+
+
+def test_all_groups_unique_local_paths(tmp_path):
+    """Guarda-chuva: nenhum par de entradas any grupo pode colidir no disco.
+
+    Observação do slug: os grupos com várias fontes por partição (como
+    ``atrasos-cancelamentos``) precisam declarar ``slug`` na entrada;
+    caso contrário, o caminho local colide e este teste falha.
+    """
+    repo = DataRepository(tmp_path)
+    date = dt.date(2026, 6, 1)
+    all_entries = list_datasets()
+    paths = [repo.path_for_entry(e, last_modified=date) for e in all_entries]
+    seen: dict[Path, str] = {}
+    for entry, path in zip(all_entries, paths, strict=True):
+        assert path not in seen, (
+            f"Caminhos idênticos {entry['url']} e {seen[path]} → {path}"
+        )
+        seen[path] = entry["url"]

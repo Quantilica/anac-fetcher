@@ -2,6 +2,7 @@
 
 import pytest
 
+from anac_fetcher._catalog_base import slugify_filename
 from anac_fetcher.catalog import (
     ALL_GROUP_KEYS,
     GROUPS,
@@ -294,6 +295,41 @@ def test_atrasos_missing_2014_world_cup_months_excluded():
     assert not any(e["year"] == 2014 and e["month"] in (6, 7) for e in entries), (
         "2014-06/07 were never published (HTTP 404)"
     )
+
+
+def test_slugify_filename_strips_extension_accents_and_spaces():
+    assert slugify_filename("Anexo I.csv") == "anexo-i"
+    assert slugify_filename("Anexo II.json") == "anexo-ii"
+    assert slugify_filename("Anexo III.csv") == "anexo-iii"
+    assert slugify_filename("Percentuais de Atrasos e Cancelamentos.zip") == (
+        "percentuais-de-atrasos-e-cancelamentos"
+    )
+    assert slugify_filename("Trânsito_2024.JPG") == "transito-2024"
+
+
+@pytest.mark.parametrize("name", ["", ".csv", "___.___", "-", "--"])
+def test_slugify_filename_empty_raises(name):
+    with pytest.raises(ValueError, match="não consegue derivar slug"):
+        slugify_filename(name)
+
+
+def test_atrasos_entries_have_unique_anexo_slugs():
+    jan_2000 = [
+        e
+        for e in GROUPS["atrasos-cancelamentos"]["entries"]
+        if e["year"] == 2000 and e["month"] == 1
+    ]
+    slugs = {(e["slug"], e["ext"]) for e in jan_2000}
+    assert slugs == {
+        ("anexo-i", "csv"),
+        ("anexo-ii", "csv"),
+        ("anexo-iii", "csv"),
+        ("anexo-i", "json"),
+        ("anexo-ii", "json"),
+        ("anexo-iii", "json"),
+    }
+    ids = [e["id"] for e in jan_2000]
+    assert len(ids) == len(set(ids))
 
 
 def test_atrasos_2014_neighboring_months_present():

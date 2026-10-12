@@ -63,7 +63,9 @@ def spec_for(group: str) -> dict[str, Any]:
 def _target_path(
     meta: dict[str, Any], group_dir: str, out_dir: Path, sheet: str | None = None
 ) -> Path:
-    """Monta o caminho do Parquet espelhando o nome do arquivo bruto.
+    """Monta o caminho do Parquet espelhando o nome do arquivo bruto. O slug
+    opcional é incluído após a partição, para que arquivos remotos distintos
+    de um mesmo grupo/partição (ex.: anexos) não sobrescrevam a conversão.
 
     Args:
         meta (dict[str, Any]): Metadados de ``parse_filename``.
@@ -78,8 +80,11 @@ def _target_path(
     if sheet:
         base = f"{base}_{sheet}"
     partition = meta["partition"]
+    slug = meta.get("slug")
     mod = meta["modification"]
     name = base if not partition else f"{base}_{partition}"
+    if slug:
+        name = f"{name}_{slug}"
     if mod:
         name = f"{name}@{mod}"
     return out_dir / group_dir / f"{name}.parquet"

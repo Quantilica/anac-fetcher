@@ -3,6 +3,11 @@
 Filenames follow the ecosystem convention:
     {base_id}@{YYYYMMDD}.{ext}                     — static files
     {base_id}_{year}-{month:02d}@{YYYYMMDD}.{ext}  — monthly series
+
+Quando a entrada tem ``slug`` (grupo com vários arquivos remotos na mesma
+partição, ex.: os anexos de ``atrasos-cancelamentos``), o slug entra após a
+partição:
+    {base_id}_{year}-{month:02d}_{slug}@{YYYYMMDD}.{ext}
 """
 
 import datetime as dt
@@ -62,9 +67,13 @@ class DataRepository(BaseDataRepository):
     ) -> Path:
         """Compute the local path for a dataset entry.
 
+        O ``slug`` opcional da entrada (nome do arquivo remoto) é inserido
+        após a partição, tornando o caminho único quando o grupo tem vários
+        arquivos remotos por partição (ex.: anexos de ``atrasos-cancelamentos``).
+
         Args:
             entry: The dataset entry dict containing metadata like group, ext,
-                base_id.
+                base_id, slug.
             last_modified: Optional timestamp of the remote file, used to version
                 the local file.
 
@@ -76,17 +85,23 @@ class DataRepository(BaseDataRepository):
         base_id = entry["base_id"]
         year = entry["year"]
         month = entry["month"]
+        slug = entry.get("slug")
 
         if year is None:
             filename = stamp_filename(base_id, ext, last_modified)
         elif month is not None:
             partition = f"{year}-{month:02d}"
+            if slug:
+                partition = f"{partition}_{slug}"
             filename = build_stamped_filename(
                 base_id, partition, ext=ext, timestamp=last_modified
             )
         else:
+            partition = str(year)
+            if slug:
+                partition = f"{partition}_{slug}"
             filename = build_stamped_filename(
-                base_id, year, ext=ext, timestamp=last_modified
+                base_id, partition, ext=ext, timestamp=last_modified
             )
 
         return self.storage.path_for(f"{group_dir}/{filename}")

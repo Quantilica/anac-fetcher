@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import polars as pl
+import pytest
 
 from anac_fetcher.reader import (
     decompress,
@@ -45,6 +46,87 @@ def test_parse_filename_unrecognized():
     meta = parse_filename(Path("arquivo_estranho.json"))
     assert meta["base_id"] == "arquivo_estranho"
     assert meta["partition"] is None
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "vra_2025-05@20250601.csv",
+        "vra_2025-05.csv",
+        "vra_2025@20250601.csv",
+        "vra_2025.csv",
+        "vra@20250601.csv",
+        "vra.csv",
+        "ocorrencias-csv@20260829.csv",
+        "rab-hist-xls_2017-01.json",
+        "drones-hist_2024-03@20260801.csv",
+        "movimentacao-aeroportuaria_2025-07@20260801.csv",
+    ],
+)
+def test_parse_filename_no_slug_unchanged(name):
+    meta = parse_filename(Path(name))
+    assert meta["slug"] is None
+    year = meta["year"]
+    part = meta["part"]
+    if part is not None:
+        expected = f"{year}-{part:02d}"
+    elif year is not None:
+        expected = str(year)
+    else:
+        expected = None
+    assert meta["partition"] == expected
+
+
+@pytest.mark.parametrize(
+    ("name", "expected_base", "expected_slug"),
+    [
+        (
+            "atrasos-cancelamentos_2001-05_anexo-i@20260805.csv",
+            "atrasos-cancelamentos",
+            "anexo-i",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-ii@20260805.csv",
+            "atrasos-cancelamentos",
+            "anexo-ii",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-iii@20260805.csv",
+            "atrasos-cancelamentos",
+            "anexo-iii",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-i@20260805.json",
+            "atrasos-cancelamentos",
+            "anexo-i",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-ii@20260805.json",
+            "atrasos-cancelamentos",
+            "anexo-ii",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-iii@20260805.json",
+            "atrasos-cancelamentos",
+            "anexo-iii",
+        ),
+        (
+            "atrasos-cancelamentos_2001-05_anexo-ii.csv",
+            "atrasos-cancelamentos",
+            "anexo-ii",
+        ),
+    ],
+)
+def test_parse_filename_with_slug(name, expected_base, expected_slug):
+    meta = parse_filename(Path(name))
+    assert meta["base_id"] == expected_base
+    assert meta["year"] == 2001
+    assert meta["part"] == 5
+    assert meta["partition"] == "2001-05"
+    assert meta["slug"] == expected_slug
+    mod = 20260805 if "@20260805." in name else None
+    assert meta["modification"] == mod
+    assert meta["ext"] in ("csv", "json")
 
 
 def test_normalize_dtypes():

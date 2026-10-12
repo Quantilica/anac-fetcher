@@ -13,7 +13,7 @@ Layout no servidor:
 import datetime as dt
 from urllib.parse import quote
 
-from ._catalog_base import DatasetEntry, GroupInfo
+from ._catalog_base import DatasetEntry, GroupInfo, slugify_filename
 
 _SOURCE = "anac-dadosabertos"
 _ROOT = "https://sistemas.anac.gov.br/dadosabertos"
@@ -53,10 +53,12 @@ _LAST_MONTH = dt.date.today().month
 
 def _atraso_entry(year: int, month: int, anexo: str, ext: str) -> DatasetEntry:
     month_dir = quote(f"{month:02d} - {_MESES_PT[month]}", safe="")
+    source_name = f"Anexo {anexo}.{ext}"
     url = f"{_BASE}/{year}/{month_dir}/Anexo%20{anexo}.{ext}"
     return DatasetEntry(
         id=f"atrasos-{year}-{month:02d}-anexo-{anexo.lower()}-{ext}",
         base_id="atrasos-cancelamentos",
+        slug=slugify_filename(source_name),
         name=f"Percentuais de atrasos e cancelamentos — Anexo {anexo} — "
         f"{_MESES_PT[month]}/{year}",
         url=url,

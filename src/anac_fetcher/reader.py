@@ -34,13 +34,15 @@ from quantilica.core.manifests import DownloadManifest, manifest_sidecar_path
 logger = logging.getLogger(__name__)
 
 # Layouts do storage do anac-fetcher (o stamp @YYYYMMDD é opcional — ausente
-# quando o servidor não reporta Last-Modified):
+# quando o servidor não reporta Last-Modified; o slug é opcional — presente
+# quando o grupo tem vários arquivos remotos na mesma partição, ex. anexos):
 #   {base_id}[@{YYYYMMDD}].{ext}                   (estático)
 #   {base_id}_{year}[@{YYYYMMDD}].{ext}            (anual)
 #   {base_id}_{year}-{part:02d}[@{YYYYMMDD}].{ext} (mensal/semestral)
+#   {base_id}_{year}-{part:02d}_{slug}[@{YYYYMMDD}].{ext} (mensal com slug)
 _FILENAME_RE = re.compile(
     r"^(?P<base_id>.+?)"
-    r"(?:_(?P<year>\d{4})(?:-(?P<part>\d{2}))?)?"
+    r"(?:_(?P<year>\d{4})(?:-(?P<part>\d{2}))?(?:_(?P<slug>[a-z0-9-]+))?)?"
     r"(?:@(?P<mod>\d{8}))?"
     r"\.(?P<ext>[a-z0-9]+)$"
 )
@@ -56,8 +58,8 @@ def parse_filename(path: Path) -> dict[str, Any]:
 
     Returns:
         dict[str, Any]: Metadados com ``base_id``, ``year``, ``part``,
-            ``partition`` (string de partição ou None), ``modification``
-            (YYYYMMDD) e ``ext``.
+            ``partition`` (string de partição ou None), ``slug`` (slug do
+            arquivo remoto ou None), ``modification`` (YYYYMMDD) e ``ext``.
     """
     m = _FILENAME_RE.match(path.name)
     if not m:
@@ -68,6 +70,7 @@ def parse_filename(path: Path) -> dict[str, Any]:
             "year": None,
             "part": None,
             "partition": None,
+            "slug": None,
             "modification": None,
             "ext": path.suffix.lstrip("."),
         }
@@ -88,6 +91,7 @@ def parse_filename(path: Path) -> dict[str, Any]:
         "year": year,
         "part": part,
         "partition": partition,
+        "slug": g["slug"] or None,
         "modification": mod,
         "ext": g["ext"],
     }
