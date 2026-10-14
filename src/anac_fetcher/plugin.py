@@ -108,8 +108,7 @@ def cmd_convert(
 
         get_console().print(
             "[red]Erro:[/red] convert requer extras de análise: "
-            r"uv add 'anac-fetcher\[analysis]' "
-            "--index https://index.quantilica.com/simple/"
+            "quantilica install anac --extra analysis"
         )
         raise typer.Exit(1) from None
 
@@ -192,8 +191,7 @@ def cmd_pipeline(
     except ImportError:
         console.print(
             "[red]Erro:[/red] pipeline (conversão) requer extras de análise: "
-            r"uv add 'anac-fetcher\[analysis]' "
-            "--index https://index.quantilica.com/simple/"
+            "quantilica install anac --extra analysis"
         )
         raise typer.Exit(1) from None
 
