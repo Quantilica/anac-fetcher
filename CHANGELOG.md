@@ -12,6 +12,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `plugin.py`: a dica de instalação do extra `analysis` mandava `pip install anac-fetcher[analysis]`, que não funciona para fetchers do Fluxo B (fora do PyPI), e o Rich ainda engolia o `[analysis]` por tratá-lo como marcação, deixando só `pip install anac-fetcher`. Agora a mensagem é `quantilica install anac --extra analysis`. Nos guards de `reader.py`, `wrangling.py` e `contracts.py`, que atendem quem importa o pacote, a mensagem é `uv add 'anac-fetcher[analysis]' --index https://index.quantilica.com/simple/`.
 
 ### Alterado
+- `README.md`: a seção de instalação deixa de mandar `pip install` (fetchers do Fluxo B não estão no PyPI) e passa a mostrar `quantilica install anac` (com `--extra analysis`) e `uv add --index` para uso como biblioteca.
 - `cli.py` protege o import do plugin; sem o host a CLI standalone sai com
   código 1 e orienta `quantilica install <fonte>`.
 - `reader.decompress` agora delega a descompressão de arquivos brutos para `quantilica.core.files.decompress_archive`, eliminando lógica local duplicada.

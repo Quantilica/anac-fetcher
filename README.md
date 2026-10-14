@@ -7,14 +7,20 @@ Utilitário de linha de comando para baixar dados públicos da [ANAC](https://ww
 Para a documentação completa, consulte a [Documentação Oficial do Quantilica](https://docs.quantilica.com).
 ## Instalação
 
+Pela CLI unificada (recomendado):
+
 ```bash
-pip install anac-fetcher
+quantilica install anac
+# com o extra de análise (comandos convert e pipeline):
+quantilica install anac --extra analysis
 ```
 
-Com [uv](https://github.com/astral-sh/uv):
+Como biblioteca num projeto, a partir do índice próprio (este pacote não é publicado no PyPI):
 
 ```bash
-uv add anac-fetcher
+uv add anac-fetcher --index https://index.quantilica.com/simple/
+# com o extra de análise:
+uv add 'anac-fetcher[analysis]' --index https://index.quantilica.com/simple/
 ```
 
 **Requisitos:** Python 3.12+
