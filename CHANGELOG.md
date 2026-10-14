@@ -5,7 +5,7 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
-## [Não lançado]
+## [0.4.2] - 2026-10-14
 
 ### Corrigido
 
@@ -20,7 +20,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   `bcb-sgs-fetcher`).
 - `reader.py`, `contracts.py` e `wrangling.py`: imports de `polars`/
   `quantilica.analytics` agora falham com mensagem acionável orientando o
-  extra `analysis` (`pip install 'anac-fetcher[analysis]'`).
+  extra `analysis` (`uv add 'anac-fetcher[analysis]' --index https://index.quantilica.com/simple/`).
 - Extra `analysis` declara `polars>=1.0.0` explicitamente.
 
 ## [0.4.1] - 2026-10-02
