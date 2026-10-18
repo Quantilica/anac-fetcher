@@ -30,7 +30,7 @@ except ImportError as exc:
     ) from exc
 from quantilica.core.exceptions import StorageError
 from quantilica.core.files import decompress_archive
-from quantilica.core.manifests import DownloadManifest, manifest_sidecar_path
+from quantilica.core.manifests import DownloadManifest, read_manifest_sidecar
 
 logger = logging.getLogger(__name__)
 
@@ -350,9 +350,9 @@ def write_parquet(
 ) -> Path:
     """Escreve um DataFrame como Parquet (zstd) com proveniência opcional.
 
-    A escrita é atômica (write-temp-rename) e, quando o arquivo bruto de
-    origem tem sidecar ``.manifest.json``, o manifest de download é
-    reconstruído e delegado ao ``to_parquet`` canônico: os metadados
+    A escrita é delegada ao ``to_parquet`` canônico de
+    ``quantilica.analytics.writer`` (atômica, write-temp-rename); quando o
+    arquivo bruto de origem tem sidecar ``.manifest.json``, os metadados
     ``quantilica.*`` são injetados no Parquet e um sidecar de proveniência é
     escrito ao lado do destino.
 
@@ -365,12 +365,13 @@ def write_parquet(
     Returns:
         Path: O caminho do Parquet escrito.
     """
-    manifest = _sidecar_manifest(source_path) if source_path else None
-    return to_parquet(df, target, manifest=manifest)
+    return to_parquet(df, target, source_path=source_path)
 
 
 def _sidecar_manifest(path: Path) -> DownloadManifest | None:
     """Reconstroi o ``DownloadManifest`` do sidecar ``{path}.manifest.json``.
+
+    Alias fino para ``quantilica.core.manifests.read_manifest_sidecar``.
 
     Args:
         path (Path): Caminho do arquivo bruto de origem.
@@ -379,25 +380,4 @@ def _sidecar_manifest(path: Path) -> DownloadManifest | None:
         DownloadManifest | None: O manifest reconstruído, ou None quando o
             sidecar não existe ou é inválido.
     """
-    sidecar = manifest_sidecar_path(path)
-    if not sidecar.exists():
-        return None
-    try:
-        data = json.loads(sidecar.read_text())
-    except (json.JSONDecodeError, OSError) as exc:
-        logger.warning("Manifest inválido %s: %s", sidecar, exc)
-        return None
-    try:
-        size_bytes = int(data.get("size_bytes") or path.stat().st_size)
-    except OSError:
-        size_bytes = 0
-    return DownloadManifest(
-        source_id=str(data.get("source_id", "")),
-        dataset_id=str(data.get("dataset_id", "")),
-        url=str(data.get("url", "")),
-        fetched_at=str(data.get("fetched_at", "")),
-        sha256=str(data.get("sha256", "")),
-        size_bytes=size_bytes,
-        path=str(path),
-        producer=data.get("producer") or None,
-    )
+    return read_manifest_sidecar(path)

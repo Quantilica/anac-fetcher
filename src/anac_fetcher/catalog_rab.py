@@ -9,7 +9,7 @@ O formato ``csv`` só passou a ser publicado no histórico a partir de
 estão disponíveis. O mês 2019-05 não existe em nenhum formato. Outras lacunas
 pontuais (ex.: alguns meses de 2022 sem ``json``) não foram mapeadas
 individualmente — falhas de download por arquivo não interrompem a
-sincronização (ver ``download.download_group``).
+sincronização (ver FetcherApp/plugin).
 """
 
 import datetime as dt

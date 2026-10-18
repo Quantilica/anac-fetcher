@@ -46,7 +46,7 @@ _MISSING_MONTHS = {(2014, 6), (2014, 7)}
 
 # Última competência conhecida no catálogo (dados de meses recentes podem
 # ainda não estar publicados; falhas de download individuais não interrompem
-# o restante da sincronização — ver download.download_group).
+# o restante da sincronização — ver FetcherApp/plugin).
 _LAST_YEAR = dt.date.today().year
 _LAST_MONTH = dt.date.today().month
 
