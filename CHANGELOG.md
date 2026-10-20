@@ -5,6 +5,13 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.4.3] - 2026-10-20
+
+### Alterado
+- `reader`: delega leitura de manifest sidecar a `quantilica-core` (`read_manifest_sidecar`).
+- Dependências atualizadas: `quantilica-core>=0.12.0` e `quantilica-analytics>=0.4.0`.
+- Atualização de docstrings e limpeza interna.
+
 ## [0.4.2] - 2026-10-14
 
 ### Corrigido
