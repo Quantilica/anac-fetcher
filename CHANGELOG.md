@@ -5,6 +5,13 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [0.5.0] - 2026-10-27
+
+### Adicionado
+- Módulo `anac_fetcher.lake` e entry point `quantilica.lake`: conversão direta dos arquivos abertos da ANAC para o lake Parquet particionado no formato Hive (`ano=/mes=` para VRA e Dados Estatísticos, `ano=` para anuais e sem partição para cadastros estáticos).
+- Comandos CLI `convert` e `pipeline` integrados via SDK do `FetcherApp`, com suporte a `--lake`, `--dataset` e `--force`.
+- Extra `analysis` atualizado para `quantilica-analytics>=0.8.0`.
+
 ## [0.4.3] - 2026-10-20
 
 ### Alterado
