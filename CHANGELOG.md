@@ -5,6 +5,17 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Unreleased]
+
+### Corrigido
+- `convert` converte um só formato de cada conteúdo publicado em vários (`-csv`,
+  `-json`, `-xls`): CSV, depois XLSX, XLS e JSON, na versão mais recente. Antes os
+  formatos geravam linhas duplicadas no lake ou se sobrescreviam, e o JSON de 471 MB de
+  `empresas-aereas` levava o leitor a ~190 GB de memória.
+- `read_json` lê JSON em Latin-1 (anexos de `atrasos-cancelamentos`).
+- `read_csv` lê CSV com aspas desbalanceadas (RAB) como último recurso, sem tratar
+  aspas e removendo-as das pontas dos valores.
+
 ## [0.5.0] - 2026-10-27
 
 ### Adicionado

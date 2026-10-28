@@ -40,6 +40,10 @@ from anac_fetcher.wrangling import _apply_contract, spec_for
 SOURCE_ID = "anac"
 
 _YM = re.compile(r"^(?P<ano>\d{4})-(?P<mes>\d{2})$")
+# A ANAC publica o mesmo conteúdo em vários formatos ("...-csv@data.csv",
+# "...-json@data.json"); só um vira Parquet, nesta ordem de preferência.
+_FORMAT_TAG = re.compile(r"-(csv|json|xlsx?)(?=_|$)", re.IGNORECASE)
+_FORMAT_RANK = {".csv": 0, ".zip": 1, ".7z": 1, ".xlsx": 2, ".xls": 3, ".json": 4}
 _Y = re.compile(r"^(?P<ano>\d{4})$")
 
 
@@ -50,6 +54,26 @@ class ConvertResult:
     converted: int = 0
     skipped: int = 0
     errors: list[str] = field(default_factory=list)
+
+
+def pick_one_format(files: list[Path]) -> list[Path]:
+    """Um arquivo por conteúdo: o formato preferido, na versão mais recente.
+
+    Arquivos da mesma pasta que diferem só no formato (sufixo ``-csv``/``-json``
+    na base e extensão) são o mesmo dado; converter todos duplica linhas no lake
+    (bases diferentes) ou faz um sobrescrever o outro (mesma base). O JSON de
+    ``empresas-aereas`` (471 MB) ainda levava o leitor a ~190 GB de memória.
+    """
+    best: dict[str, tuple[int, str, Path]] = {}
+    for path in files:
+        base = _FORMAT_TAG.sub("", path.name.split("@", 1)[0].rsplit(".", 1)[0])
+        stamp = path.name.split("@", 1)[1] if "@" in path.name else ""
+        rank = _FORMAT_RANK.get(path.suffix.lower(), 5)
+        current = best.get(base)
+        # Formato preferido primeiro; no mesmo formato, a versão mais recente.
+        if current is None or (rank, current[1]) < (current[0], stamp):
+            best[base] = (rank, stamp, path)
+    return sorted(path for _, _, path in best.values())
 
 
 def resolve_partitions(meta: dict[str, Any]) -> tuple[list[str], dict[str, str]]:
@@ -127,10 +151,12 @@ class LakeConverter:
 
             spec = spec_for(group)
 
-            raw_files = sorted(
-                p
-                for p in src_group_dir.iterdir()
-                if p.is_file() and not p.name.endswith(".manifest.json")
+            raw_files = pick_one_format(
+                [
+                    p
+                    for p in src_group_dir.iterdir()
+                    if p.is_file() and not p.name.endswith(".manifest.json")
+                ]
             )
 
             for raw_file in raw_files:

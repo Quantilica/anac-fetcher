@@ -119,3 +119,47 @@ def test_cli_convert(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, result.output
     assert (lake_dir / SOURCE_ID / "vra").exists()
+
+
+def test_pick_one_format_prefers_csv_and_latest(tmp_path: Path) -> None:
+    from anac_fetcher.lake import pick_one_format
+
+    names = [
+        "empresas-aereas-nacionais-csv@20261026.csv",
+        "empresas-aereas-nacionais-json@20261026.json",
+        "rab-hist-csv_2024-09@20240901.csv",
+        "rab-hist-csv_2024-09@20241001.csv",
+        "rab-hist-json_2024-09@20241001.json",
+        "rab-hist-xls_2024-09@20241001.xls",
+        "atrasos_2025-10_anexo-ii@20260527.json",
+    ]
+    chosen = [p.name for p in pick_one_format([tmp_path / n for n in names])]
+    assert chosen == [
+        "atrasos_2025-10_anexo-ii@20260527.json",
+        "empresas-aereas-nacionais-csv@20261026.csv",
+        "rab-hist-csv_2024-09@20241001.csv",
+    ]
+
+
+def test_read_json_latin1(tmp_path: Path) -> None:
+    from anac_fetcher.reader import read_json
+
+    src = tmp_path / "anexo.json"
+    src.write_bytes('[{"Situação": "CANCELADO", "Código": "É1"}]'.encode("latin-1"))
+    df = read_json(src)
+    assert df.row(0) == ("CANCELADO", "É1")
+
+
+def test_read_csv_unbalanced_quotes(tmp_path: Path) -> None:
+    from anac_fetcher.reader import read_csv
+
+    src = tmp_path / "rab.csv"
+    src.write_text(
+        '"MARCA";"PROPRIETARIO";"MODELO"\n'
+        '"PT-ABC";"SERGIO LUIZ LOUSADA JR"";"PLAN"\n'
+        '"PT-XYZ";"MARIA";"PA-28"\n',
+        encoding="latin-1",
+    )
+    df = read_csv(src, {})
+    assert df.columns == ["MARCA", "PROPRIETARIO", "MODELO"]
+    assert df["MARCA"].to_list() == ["PT-ABC", "PT-XYZ"]

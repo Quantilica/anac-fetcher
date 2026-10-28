@@ -198,7 +198,33 @@ def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
         if encoding is not None:
             raise
         logger.debug("UTF-8 falhou (%s); tentando latin-1", exc)
-        return read_brazilian_csv(path, encoding="latin-1", decimal=",", **kwargs)
+        try:
+            return read_brazilian_csv(path, encoding="latin-1", decimal=",", **kwargs)
+        except Exception as exc2:
+            logger.warning("%s: aspas malformadas (%s); lendo sem aspas", path, exc2)
+            return _read_csv_unquoted(path, kwargs)
+
+
+def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
+    """Lê o CSV sem tratar aspas e tira as aspas das pontas de cada valor.
+
+    Para arquivos com aspas desbalanceadas (``"LOUSADA JR"";"PLAN"`` no RAB), que o
+    leitor com aspas recusa. Separadores dentro de campos entre aspas se perderiam,
+    então este é só o último recurso.
+    """
+    for enc in ("utf-8", "latin-1"):
+        try:
+            df = read_brazilian_csv(
+                path, encoding=enc, decimal=",", quote_char=None, **kwargs
+            )
+            break
+        except Exception:
+            if enc == "latin-1":
+                raise
+    df = df.rename({c: c.strip('"') for c in df.columns})
+    return df.with_columns(
+        pl.col(c).str.strip_chars('"') for c, t in df.schema.items() if t == pl.String
+    )
 
 
 def read_json(path: Path) -> pl.DataFrame:
@@ -217,7 +243,11 @@ def read_json(path: Path) -> pl.DataFrame:
     import json as _json
     from io import BytesIO
 
-    text = path.read_text(encoding="utf-8-sig")
+    try:
+        text = path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        # Alguns anexos de atrasos-cancelamentos vêm em Latin-1.
+        text = path.read_text(encoding="latin-1")
     try:
         return pl.read_json(BytesIO(text.encode("utf-8")))
     except Exception:
