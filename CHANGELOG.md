@@ -12,7 +12,11 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
   `-json`, `-xls`): CSV, depois XLSX, XLS e JSON, na versão mais recente. Antes os
   formatos geravam linhas duplicadas no lake ou se sobrescreviam, e o JSON de 471 MB de
   `empresas-aereas` levava o leitor a ~190 GB de memória.
-- `read_json` lê JSON em Latin-1 (anexos de `atrasos-cancelamentos`).
+- `read_json` lê JSON em Latin-1 (anexos de `atrasos-cancelamentos`) e NDJSON (um
+  objeto por linha, como `empresas-aereas` e `aerodromos-*`), em streaming; listas viram
+  texto separado por `; `.
+- `empresas-aereas` usa o JSON: o CSV vem quebrado da origem. `read_csv` recusa de
+  imediato um CSV com linha de mais de 1 MB, que antes levava o leitor a dezenas de GB.
 - `read_csv` lê CSV com aspas desbalanceadas (RAB) como último recurso, sem tratar
   aspas e removendo-as das pontas dos valores.
 

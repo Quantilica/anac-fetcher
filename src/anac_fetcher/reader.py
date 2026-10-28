@@ -182,6 +182,11 @@ def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
     Returns:
         pl.DataFrame: O DataFrame lido com tipos inferidos.
     """
+    with open(path, "rb") as fh:
+        if b"\n" not in fh.read(_MAX_LINE_BYTES):
+            # empresas-aereas: uma "linha" de 10 MB (separador '\\""' literal); o
+            # leitor de CSV consome dezenas de GB antes de falhar.
+            raise ValueError(f"{path.name}: linha com mais de 1 MB; CSV quebrado")
     kwargs: dict[str, Any] = {}
     skip = spec.get("skip_rows", 0) + _preamble_rows(path)
     kwargs["separator"] = spec.get("separator") or _sniff_separator(path, skip)
@@ -205,6 +210,10 @@ def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
             return _read_csv_unquoted(path, kwargs)
 
 
+_MAX_UNQUOTED_COLUMNS = 500
+_MAX_LINE_BYTES = 1 << 20
+
+
 def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
     """Lê o CSV sem tratar aspas e tira as aspas das pontas de cada valor.
 
@@ -221,9 +230,26 @@ def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
         except Exception:
             if enc == "latin-1":
                 raise
+    if df.width > _MAX_UNQUOTED_COLUMNS:
+        raise ValueError(
+            f"{path.name}: {df.width} colunas lido sem aspas; CSV quebrado na origem"
+        )
     df = df.rename({c: c.strip('"') for c in df.columns})
     return df.with_columns(
         pl.col(c).str.strip_chars('"') for c, t in df.schema.items() if t == pl.String
+    )
+
+
+def _read_ndjson(path: Path) -> pl.DataFrame:
+    """Lê NDJSON em streaming; listas viram texto separado por ``; ``."""
+    try:
+        df = pl.read_ndjson(path, infer_schema_length=None)
+    except Exception:
+        df = pl.read_ndjson(path, infer_schema_length=None, ignore_errors=True)
+    return df.with_columns(
+        pl.col(c).cast(pl.List(pl.String)).list.join("; ")
+        for c, t in df.schema.items()
+        if isinstance(t, pl.List)
     )
 
 
@@ -243,6 +269,11 @@ def read_json(path: Path) -> pl.DataFrame:
     import json as _json
     from io import BytesIO
 
+    with open(path, "rb") as fh:
+        head = fh.read(4096).lstrip(b"\xef\xbb\xbf \t\r\n")
+    if head.startswith(b"{") and b"}\n{" in head.replace(b"\r\n", b"\n"):
+        # NDJSON (um objeto por linha), como empresas-aereas e aerodromos-*.
+        return _read_ndjson(path)
     try:
         text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:

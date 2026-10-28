@@ -56,7 +56,9 @@ class ConvertResult:
     errors: list[str] = field(default_factory=list)
 
 
-def pick_one_format(files: list[Path]) -> list[Path]:
+def pick_one_format(
+    files: list[Path], preferred: tuple[str, ...] | None = None
+) -> list[Path]:
     """Um arquivo por conteúdo: o formato preferido, na versão mais recente.
 
     Arquivos da mesma pasta que diferem só no formato (sufixo ``-csv``/``-json``
@@ -68,7 +70,11 @@ def pick_one_format(files: list[Path]) -> list[Path]:
     for path in files:
         base = _FORMAT_TAG.sub("", path.name.split("@", 1)[0].rsplit(".", 1)[0])
         stamp = path.name.split("@", 1)[1] if "@" in path.name else ""
-        rank = _FORMAT_RANK.get(path.suffix.lower(), 5)
+        suffix = path.suffix.lower()
+        if preferred and suffix in preferred:
+            rank = preferred.index(suffix) - len(preferred)  # antes da ordem padrão
+        else:
+            rank = _FORMAT_RANK.get(suffix, 5)
         current = best.get(base)
         # Formato preferido primeiro; no mesmo formato, a versão mais recente.
         if current is None or (rank, current[1]) < (current[0], stamp):
@@ -156,7 +162,8 @@ class LakeConverter:
                     p
                     for p in src_group_dir.iterdir()
                     if p.is_file() and not p.name.endswith(".manifest.json")
-                ]
+                ],
+                spec.get("formatos"),
             )
 
             for raw_file in raw_files:

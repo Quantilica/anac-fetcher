@@ -163,3 +163,36 @@ def test_read_csv_unbalanced_quotes(tmp_path: Path) -> None:
     df = read_csv(src, {})
     assert df.columns == ["MARCA", "PROPRIETARIO", "MODELO"]
     assert df["MARCA"].to_list() == ["PT-ABC", "PT-XYZ"]
+
+
+def test_read_json_ndjson(tmp_path: Path) -> None:
+    from anac_fetcher.reader import read_json
+
+    src = tmp_path / "empresas.json"
+    src.write_text(
+        '{"cnpj": "11.478.447/0001-97", "atividades_aereas": ["AEROAGRÍCOLA"]}\r\n'
+        '{"cnpj": "47.298.916/0001-33", "atividades_aereas": ["A", "B"]}\r\n',
+        encoding="utf-8",
+    )
+    df = read_json(src)
+    assert df["atividades_aereas"].to_list() == ["AEROAGRÍCOLA", "A; B"]
+
+
+def test_pick_one_format_respects_group_preference(tmp_path: Path) -> None:
+    from anac_fetcher.lake import pick_one_format
+
+    names = [
+        "empresas-aereas-nacionais-csv@20261026.csv",
+        "empresas-aereas-nacionais-json@20261026.json",
+    ]
+    chosen = pick_one_format([tmp_path / n for n in names], (".json", ".csv"))
+    assert [p.name for p in chosen] == [names[1]]
+
+
+def test_read_csv_refuses_giant_line(tmp_path: Path) -> None:
+    from anac_fetcher.reader import read_csv
+
+    src = tmp_path / "quebrado.csv"
+    src.write_bytes(b'a\\""b\\""' * 200_000)
+    with pytest.raises(ValueError, match="CSV quebrado"):
+        read_csv(src, {})
