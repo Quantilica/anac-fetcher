@@ -282,6 +282,13 @@ def read_json(path: Path) -> pl.DataFrame:
     try:
         return pl.read_json(BytesIO(text.encode("utf-8")))
     except Exception:
+        if "][" in text:
+            # dados-estatisticos: várias páginas ("[...][...]") no mesmo arquivo,
+            # de centenas de MB; unidas num array só, sem passar pelo json.loads.
+            try:
+                return pl.read_json(BytesIO(text.replace("][", ",").encode("utf-8")))
+            except Exception as exc:
+                logger.debug("%s: páginas unidas não leram (%s)", path, exc)
         data = _json.loads(text)
         try:
             return pl.from_dicts(data)

@@ -8,6 +8,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Unreleased]
 
 ### Corrigido
+- `read_json` lê os JSON com várias páginas concatenadas (`[...][...]`, em
+  `dados-estatisticos`), que antes falhavam com "Extra data".
 - `convert` converte um só formato de cada conteúdo publicado em vários (`-csv`,
   `-json`, `-xls`): CSV, depois XLSX, XLS e JSON, na versão mais recente. Antes os
   formatos geravam linhas duplicadas no lake ou se sobrescreviam, e o JSON de 471 MB de

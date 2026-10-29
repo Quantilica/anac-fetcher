@@ -261,3 +261,10 @@ def test_write_parquet(tmp_path):
     result = write_parquet(df, target)
     assert result.exists()
     assert pl.read_parquet(target).shape == (2, 2)
+
+
+def test_read_json_paginas_concatenadas(tmp_path: Path) -> None:
+    # dados-estatisticos: "[...][...]" no mesmo arquivo.
+    src = tmp_path / "dados-estatisticos-2000-2010-json@20261028.json"
+    src.write_text('[{"ANO": "2000", "MES": "1"}][{"ANO": "2000", "MES": "2"}]')
+    assert read_json(src)["MES"].to_list() == ["1", "2"]
