@@ -99,6 +99,23 @@ def resolve_partitions(meta: dict[str, Any]) -> tuple[list[str], dict[str, str]]
     return ["particao"], {"particao": partition}
 
 
+_COARSER_SUFFIX = {("ano",): "-anual", (): "-atual"}
+
+
+def dataset_for_granularity(group: str, part_keys: list[str], finest: int) -> str:
+    """Dataset de um arquivo num grupo que mistura granularidades.
+
+    Uma tabela Hive precisa da mesma profundidade de partições em todos os arquivos.
+    Em ``drones`` e ``rab`` o histórico é mensal (``_2022-08``) e o cadastro vigente
+    (``-atual-csv``) não tem período: o histórico fica com o nome do grupo e o
+    cadastro vai para ``<grupo>-atual``.
+    """
+    if len(part_keys) >= finest:
+        return group
+    suffix = _COARSER_SUFFIX.get(tuple(part_keys), "-" + "-".join(part_keys))
+    return group + suffix
+
+
 class LakeConverter:
     """Converter registered under the ``quantilica.lake`` entry point."""
 
@@ -166,18 +183,20 @@ class LakeConverter:
                 spec.get("formatos"),
             )
 
-            for raw_file in raw_files:
-                meta = parse_filename(raw_file)
-                part_keys, part_vals = resolve_partitions(meta)
+            resolved = [(f, *resolve_partitions(parse_filename(f))) for f in raw_files]
+            finest = max((len(keys) for _, keys, _ in resolved), default=0)
 
-                writer_key = f"{group}:" + ",".join(part_keys)
+            for raw_file, part_keys, part_vals in resolved:
+                dataset_id = dataset_for_granularity(group, part_keys, finest)
+
+                writer_key = f"{dataset_id}:" + ",".join(part_keys)
                 if writer_key not in writers:
                     writers[writer_key] = LakeWriter(
-                        lake_dir / SOURCE_ID / group,
+                        lake_dir / SOURCE_ID / dataset_id,
                         DatasetDescriptor(
                             source_id=SOURCE_ID,
-                            dataset_id=group,
-                            alias=group,
+                            dataset_id=dataset_id,
+                            alias=dataset_id,
                             partition_keys=part_keys,
                             partition_types={k: "varchar" for k in part_keys},
                         ),

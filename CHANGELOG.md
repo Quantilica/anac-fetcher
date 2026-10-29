@@ -8,6 +8,10 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Unreleased]
 
 ### Corrigido
+- `convert` separa o cadastro vigente do histórico mensal em `drones` e `rab`: o
+  histórico fica com o nome do grupo e o cadastro (`-atual-csv`) vai para `<grupo>-atual`.
+  Antes, partições de profundidades diferentes no mesmo dataset impediam o DuckDB de
+  ler o lake ("Hive partition mismatch").
 - `read_json` lê os JSON com várias páginas concatenadas (`[...][...]`, em
   `dados-estatisticos`), que antes falhavam com "Extra data".
 - `convert` converte um só formato de cada conteúdo publicado em vários (`-csv`,

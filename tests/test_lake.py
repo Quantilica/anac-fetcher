@@ -16,6 +16,7 @@ from typer.testing import CliRunner  # noqa: E402
 from anac_fetcher.lake import (  # noqa: E402
     SOURCE_ID,
     converter,
+    dataset_for_granularity,
     resolve_partitions,
 )
 from anac_fetcher.plugin import app  # noqa: E402
@@ -196,3 +197,9 @@ def test_read_csv_refuses_giant_line(tmp_path: Path) -> None:
     src.write_bytes(b'a\\""b\\""' * 200_000)
     with pytest.raises(ValueError, match="CSV quebrado"):
         read_csv(src, {})
+
+
+def test_dataset_for_granularity() -> None:
+    assert dataset_for_granularity("drones", ["ano", "mes"], 2) == "drones"
+    assert dataset_for_granularity("drones", [], 2) == "drones-atual"
+    assert dataset_for_granularity("vra", ["ano", "mes"], 2) == "vra"
