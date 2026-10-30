@@ -1,6 +1,6 @@
 [project]
 name = "anac-fetcher"
-version = "0.6.0"
+version = "0.6.1"
 description = "A commandline utility to download ANAC (Agência Nacional de Aviação Civil) open data"
 readme = "README.md"
 authors = [
@@ -24,7 +24,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "quantilica-core>=0.13.0",
+    "quantilica-core>=0.15.0",
 ]
 
 [project.optional-dependencies]
