@@ -5,6 +5,19 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Adicionado
+- Método opcional `inventory()` no conversor do lake: para cada arquivo bruto, informa
+  o dataset que o `convert` vai alimentar ou o motivo de ignorá-lo — gêmeo de outro
+  formato, arquivo não tabular (PDF, imagem, documento, mapa) ou versão anterior do
+  mesmo formato. Ferramentas de auditoria de cobertura passam a usar esse mapa em vez
+  de heurísticas por extensão e nome.
+
+### Corrigido
+- A descoberta de arquivos brutos ignora restos `.tmp` de escrita interrompida, que
+  podiam ser lidos como se fossem dados.
+
 ## [0.6.0] - 2026-10-29
 
 ### Corrigido
