@@ -5,6 +5,17 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+- A movimentação aeroportuária deixa de perder a primeira linha de dados nos CSV que
+  começam direto pelo cabeçalho (sem a linha "Atualizado em"): antes essa linha virava
+  o nome das colunas no Parquet. A linha de abertura só é descartada quando é mesmo
+  "Atualizado em", com ou sem marca de ordem de bytes (BOM).
+- `convert` não repete no Parquet as colunas que já são partição (`ANO` e `MES` na
+  movimentação aeroportuária). Repetidas, elas sombreavam a partição `ano`/`mes` e o
+  DuckDB devolvia valor nulo; a verificação do lake acusava a divergência.
+
 ## [0.6.1] - 2026-10-30
 
 ### Adicionado

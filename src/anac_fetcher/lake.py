@@ -146,6 +146,18 @@ def resolve_partitions(meta: dict[str, Any]) -> tuple[list[str], dict[str, str]]
     return ["particao"], {"particao": partition}
 
 
+def drop_partition_columns(frame: pl.DataFrame, part_keys: list[str]) -> pl.DataFrame:
+    """Tira do payload as colunas que repetem uma chave de partição Hive.
+
+    O valor já está no caminho (``ano=2022/mes=07``). O DuckDB não diferencia
+    maiúsculas: uma coluna ``ANO`` no arquivo sombreia a partição ``ano`` e a
+    leitura devolve nulo. O lake não duplica colunas de partição no Parquet.
+    """
+    keys = {k.lower() for k in part_keys}
+    drop = [c for c in frame.columns if c.lower() in keys]
+    return frame.drop(drop) if drop else frame
+
+
 _COARSER_SUFFIX = {("ano",): "-anual", (): "-atual"}
 
 
@@ -320,6 +332,7 @@ class LakeConverter:
                     for sheet, frame in frames:
                         norm = normalize_dtypes(frame, spec)
                         norm = _apply_contract(group, norm, raw_file.name)
+                        norm = drop_partition_columns(norm, part_keys)
                         # Use sheet as file_key suffix if multi-sheet
                         file_key_override = None
                         if sheet is not None:

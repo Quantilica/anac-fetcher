@@ -127,20 +127,22 @@ def decompress(path: Path) -> Path:
 def _preamble_rows(path: Path) -> int:
     """Conta linhas de preâmbulo no topo de arquivos CSV da ANAC.
 
-    Os arquivos de dados abertos têm uma linha "Atualizado em: ..." (com BOM
-    opcional) antes do cabeçalho real.
+    Alguns arquivos de dados abertos têm uma linha "Atualizado em: ..." (com BOM
+    opcional) antes do cabeçalho real; outros começam direto pelo cabeçalho (também
+    com BOM). O BOM sozinho não é preâmbulo: só conta a linha que, sem o BOM,
+    começa por "Atualizado em:".
 
     Args:
         path (Path): O caminho do arquivo.
 
     Returns:
-        int: Quantidade de linhas de preâmbulo (0 ou 1).
+        int: Quantidade de linhas de preâmbulo (0 se o cabeçalho é a primeira linha).
     """
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
             count = 0
             line = f.readline()
-            while line.startswith("\ufeff") or line.startswith("Atualizado em:"):
+            while line.lstrip("\ufeff").startswith("Atualizado em:"):
                 count += 1
                 line = f.readline()
         return count

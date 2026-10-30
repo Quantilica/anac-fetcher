@@ -268,3 +268,11 @@ def test_read_json_paginas_concatenadas(tmp_path: Path) -> None:
     src = tmp_path / "dados-estatisticos-2000-2010-json@20261028.json"
     src.write_text('[{"ANO": "2000", "MES": "1"}][{"ANO": "2000", "MES": "2"}]')
     assert read_json(src)["MES"].to_list() == ["1", "2"]
+
+
+def test_read_csv_header_with_bom_but_no_preamble(tmp_path):
+    path = tmp_path / "dados.csv"
+    path.write_text("﻿produto;valor\nGasolina;5,49\n", encoding="utf-8")
+    df = read_csv(path, {})
+    assert df.columns == ["produto", "valor"]
+    assert df.shape == (1, 2)
