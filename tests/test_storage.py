@@ -213,3 +213,14 @@ def test_all_groups_unique_local_paths(tmp_path):
             f"Caminhos idênticos {entry['url']} e {seen[path]} → {path}"
         )
         seen[path] = entry["url"]
+
+
+def test_path_for_entry_fallback_timestamp(tmp_path):
+    """When last_modified is None, the filename gets today's @YYYYMMDD timestamp."""
+    repo = DataRepository(tmp_path)
+    entry = next(e for e in list_datasets("rab") if e["id"] == "rab-atual-csv")
+    today = dt.date.today()
+    expected_stamp = f"@{today:%Y%m%d}"
+    path = repo.path_for_entry(entry, last_modified=None)
+    assert expected_stamp in path.name, f"Expected {expected_stamp} in {path.name}"
+    assert path.suffix == ".csv"

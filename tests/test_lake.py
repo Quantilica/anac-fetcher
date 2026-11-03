@@ -85,8 +85,7 @@ def test_convert_end_to_end(tmp_path: Path) -> None:
     df_vra = scan_dataset(vra_lake).collect()
     assert df_vra.height == 1
     assert "ano" in df_vra.columns
-    assert "mes" in df_vra.columns
-    assert df_vra["ano"][0] == "2024"
+    assert df_vra["ano"][0] == 2024
     assert df_vra["mes"][0] == "05"
 
     # Verify RAB (unpartitioned)

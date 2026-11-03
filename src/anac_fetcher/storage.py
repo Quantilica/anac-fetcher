@@ -80,6 +80,7 @@ class DataRepository(BaseDataRepository):
         Returns:
             The absolute Path where the file should be saved.
         """
+        timestamp = last_modified or dt.date.today()
         group_dir = _GROUP_DIRS[entry["group"]]
         ext = entry["ext"]
         base_id = entry["base_id"]
@@ -88,20 +89,20 @@ class DataRepository(BaseDataRepository):
         slug = entry.get("slug")
 
         if year is None:
-            filename = stamp_filename(base_id, ext, last_modified)
+            filename = stamp_filename(base_id, ext, timestamp)
         elif month is not None:
             partition = f"{year}-{month:02d}"
             if slug:
                 partition = f"{partition}_{slug}"
             filename = build_stamped_filename(
-                base_id, partition, ext=ext, timestamp=last_modified
+                base_id, partition, ext=ext, timestamp=timestamp
             )
         else:
             partition = str(year)
             if slug:
                 partition = f"{partition}_{slug}"
             filename = build_stamped_filename(
-                base_id, partition, ext=ext, timestamp=last_modified
+                base_id, partition, ext=ext, timestamp=timestamp
             )
 
         return self.storage.path_for(f"{group_dir}/{filename}")

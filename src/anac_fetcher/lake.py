@@ -18,7 +18,11 @@ from typing import TYPE_CHECKING, Any
 try:
     import polars as pl
     from quantilica.analytics.lake import LakeError, LakeWriter
-    from quantilica.core.lake import DatasetDescriptor
+    from quantilica.core.lake import (
+        DatasetDescriptor,
+        composite_file_key,
+        partition_types_for,
+    )
 except ImportError as exc:
     raise ImportError(
         "anac_fetcher.lake requer o extra 'analysis': "
@@ -304,7 +308,7 @@ class LakeConverter:
                             dataset_id=dataset_id,
                             alias=dataset_id,
                             partition_keys=part_keys,
-                            partition_types={k: "varchar" for k in part_keys},
+                            partition_types=partition_types_for(part_keys),
                         ),
                         force=force,
                     )
@@ -336,7 +340,7 @@ class LakeConverter:
                         # Use sheet as file_key suffix if multi-sheet
                         file_key_override = None
                         if sheet is not None:
-                            file_key_override = f"{raw_file.stem}_{sheet}"
+                            file_key_override = composite_file_key(raw_file, sheet)
 
                         written = writer.write_polars(
                             norm,
