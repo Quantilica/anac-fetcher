@@ -8,6 +8,7 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 ## [Não lançado]
 
 ### Corrigido
+- Política de frescor volta a F2 (`HEAD_FALLBACK_GET`): `REMOTE_ONLY` (F3, para fontes sem validadores) causava re-download diário de fontes com Last-Modified/ETag, porque descartava o Last-Modified e o nome do arquivo caía em `@hoje`.
 - A movimentação aeroportuária deixa de perder a primeira linha de dados nos CSV que
   começam direto pelo cabeçalho (sem a linha "Atualizado em"): antes essa linha virava
   o nome das colunas no Parquet. A linha de abertura só é descartada quando é mesmo
