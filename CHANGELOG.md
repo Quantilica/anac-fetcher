@@ -5,7 +5,7 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
-## [Não lançado]
+## [0.6.2] - 2026-11-04
 
 ### Corrigido
 - Política de frescor volta a F2 (`HEAD_FALLBACK_GET`): `REMOTE_ONLY` (F3, para fontes sem validadores) causava re-download diário de fontes com Last-Modified/ETag, porque descartava o Last-Modified e o nome do arquivo caía em `@hoje`.
@@ -16,6 +16,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - `convert` não repete no Parquet as colunas que já são partição (`ANO` e `MES` na
   movimentação aeroportuária). Repetidas, elas sombreavam a partição `ano`/`mes` e o
   DuckDB devolvia valor nulo; a verificação do lake acusava a divergência.
+
+### Alterado
+- Exige `quantilica-core>=0.16.0`.
 
 ## [0.6.1] - 2026-10-30
 
