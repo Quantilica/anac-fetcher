@@ -12,7 +12,6 @@ Apenas CSV é catalogado por padrão (JSON por mês ~240 MB; o histórico
 completo em CSV+JSON ultrapassaria ~23 GB).
 """
 
-import datetime as dt
 from urllib.parse import quote
 
 from ._catalog_base import DatasetEntry, GroupInfo
@@ -27,8 +26,12 @@ _BASE = f"{_ROOT}/{_MOV_DIR}"
 
 _START_YEAR = 2019  # primeiro ano publicado (confirmado via servidor)
 
-_LAST_YEAR = dt.date.today().year
-_LAST_MONTH = dt.date.today().month
+# Último mês publicado no servidor (snapshot de 2026-11-05: o diretório
+# ``2026/`` não existe; o índice termina em ``202512``). A ANAC não segue
+# defasagem fixa, então o catálogo NÃO deriva o fim da data de hoje: gerar
+# meses por relógio produzia 404 em todo o ano seguinte. Para avançar,
+# rode ``anac-fetcher discover`` e atualize esta constante.
+LAST_PUBLISHED: tuple[int, int] = (2025, 12)
 
 
 def _movimentacao_entry(year: int, month: int) -> DatasetEntry:
@@ -48,12 +51,10 @@ def _movimentacao_entry(year: int, month: int) -> DatasetEntry:
 
 
 def _movimentacao_entries_list() -> list[DatasetEntry]:
+    last_year, last_month = LAST_PUBLISHED
     entries: list[DatasetEntry] = []
-    for year in range(_START_YEAR, _LAST_YEAR + 1):
-        if year == _LAST_YEAR:
-            max_month = max(1, _LAST_MONTH - 2)  # ~2 months lag
-        else:
-            max_month = 12
+    for year in range(_START_YEAR, last_year + 1):
+        max_month = last_month if year == last_year else 12
         # A publicação só iniciou em 2019-03; 2019-01/02 retornam 404.
         start_month = 3 if year == _START_YEAR else 1
         for month in range(start_month, max_month + 1):

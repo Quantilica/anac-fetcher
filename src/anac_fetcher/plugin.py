@@ -87,6 +87,31 @@ def convert(
     return lake.converter.convert(input_dir, lake_dir, datasets=dataset, force=force)
 
 
+def discover_cmd(
+    as_json: bool = typer.Option(False, "--json", help="Saída em JSON"),
+    fail_on_change: bool = typer.Option(
+        False, "--fail-on-change", help="Sai com código 1 se houver novidade"
+    ),
+) -> None:
+    """Detecta meses de movimentação publicados além do catálogo."""
+    import json
+
+    from .discover import discover
+
+    report = discover()
+    if as_json:
+        typer.echo(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+    else:
+        typer.echo(f"Catálogo vai até {report.last_published_catalog}.")
+        for month in report.new_months:
+            typer.echo(f"NOVO     movimentacao-{month}")
+        if not report.has_changes:
+            typer.echo("Sem novidades em relação ao catálogo.")
+    if fail_on_change and report.has_changes:
+        raise typer.Exit(1)
+
+
+fetcher.attach_command(discover_cmd, name="discover")
 fetcher.command_convert(convert)
 fetcher.command_pipeline(convert)
 
