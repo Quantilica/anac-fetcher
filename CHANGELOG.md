@@ -7,6 +7,17 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+
+- Comando `discover`: lista meses de `movimentacao` publicados no servidor além do
+  último catalogado (`--json`, `--fail-on-change`).
+
+### Corrigido
+
+- `movimentacao`: o catálogo deixa de gerar meses sem arquivo no servidor
+  (2026-01 a 2026-09 davam 404, pois a ANAC só publicou até 2025-12). O fim do
+  catálogo é a constante `LAST_PUBLISHED`.
+
 ## [0.6.3] - 2026-11-04
 
 ### Corrigido
