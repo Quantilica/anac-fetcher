@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.7.0] - 2026-11-05
+
 ### Adicionado
 
 - Comando `discover`: lista meses de `movimentacao` publicados no servidor além do
