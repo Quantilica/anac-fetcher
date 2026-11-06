@@ -50,3 +50,37 @@ def test_discover_detecta_mes_novo() -> None:
     report = discover(lambda url: pages.get(url))
     assert report.new_months == ["2026-01", "2026-02"]
     assert report.has_changes
+
+
+def _run_discover(monkeypatch, capsys, args: list[str]):
+    """Executa o comando ``discover`` com a rede substituída por um relatório fixo."""
+    from typer.testing import CliRunner
+
+    from anac_fetcher import discover as discover_module
+    from anac_fetcher.plugin import app
+
+    report = discover_module.DiscoverReport(
+        last_published_catalog="2025-12", new_months=["2026-01"]
+    )
+    monkeypatch.setattr(discover_module, "discover", lambda *a, **k: report)
+    return CliRunner().invoke(app, ["discover", *args])
+
+
+def test_comando_discover_json_e_json_puro(monkeypatch, capsys) -> None:
+    import json
+
+    result = _run_discover(monkeypatch, capsys, ["--json"])
+    assert result.exit_code == 0
+    data = json.loads(result.stdout)
+    assert data["new_months"] == ["2026-01"]
+
+
+def test_comando_discover_texto_preserva_mensagens(monkeypatch, capsys) -> None:
+    result = _run_discover(monkeypatch, capsys, [])
+    assert "Catálogo vai até 2025-12." in result.stdout
+    assert "NOVO     movimentacao-2026-01" in result.stdout
+
+
+def test_comando_discover_fail_on_change(monkeypatch, capsys) -> None:
+    result = _run_discover(monkeypatch, capsys, ["--fail-on-change"])
+    assert result.exit_code == 1

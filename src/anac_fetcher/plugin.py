@@ -8,10 +8,19 @@ from typing import Any
 
 import typer
 from quantilica.cli.sdk import FetcherApp, make_resolve_groups
+from quantilica.cli.ui import get_console
 from quantilica.core.sync import FreshnessPolicy
 
 from .catalog import GROUP_ALIASES, GROUPS, list_datasets
 from .storage import DataRepository
+
+console = get_console()
+
+
+def _out(text: str) -> None:
+    """Imprime texto literal no console Rich compartilhado (sem markup/quebra)."""
+    console.print(text, markup=False, highlight=False, emoji=False, soft_wrap=True)
+
 
 # Resolver canônico — make_resolve_groups espera alias -> lista de ids canônicos.
 resolve_groups = make_resolve_groups(
@@ -100,13 +109,13 @@ def discover_cmd(
 
     report = discover()
     if as_json:
-        typer.echo(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+        _out(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
     else:
-        typer.echo(f"Catálogo vai até {report.last_published_catalog}.")
+        _out(f"Catálogo vai até {report.last_published_catalog}.")
         for month in report.new_months:
-            typer.echo(f"NOVO     movimentacao-{month}")
+            _out(f"NOVO     movimentacao-{month}")
         if not report.has_changes:
-            typer.echo("Sem novidades em relação ao catálogo.")
+            _out("Sem novidades em relação ao catálogo.")
     if fail_on_change and report.has_changes:
         raise typer.Exit(1)
 

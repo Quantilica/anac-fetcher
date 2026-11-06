@@ -7,6 +7,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Alterado
+- O comando `discover` imprime pelo console Rich compartilhado em vez de `typer.echo`; as mensagens e a saída `--json` (JSON puro) não mudam.
+
 ## [0.7.0] - 2026-11-05
 
 ### Adicionado
