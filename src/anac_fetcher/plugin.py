@@ -9,6 +9,7 @@ from typing import Any
 import typer
 from quantilica.cli.sdk import FetcherApp, make_resolve_groups
 from quantilica.cli.ui import get_console
+from quantilica.core.registry import FetcherInfo
 from quantilica.core.sync import FreshnessPolicy
 
 from .catalog import GROUP_ALIASES, GROUPS, list_datasets
@@ -68,6 +69,14 @@ def _resolve_groups(groups: list[str] | None) -> list[str]:
 fetcher = FetcherApp(
     name="anac-fetcher",
     help="Dados da ANAC (Agência Nacional de Aviação Civil).",
+    info=FetcherInfo(
+        id="anac",
+        nome="ANAC - Dados Abertos",
+        orgao="Agência Nacional de Aviação Civil (ANAC)",
+        homepage="https://www.gov.br/anac/",
+        cadencia="daily",
+        dominio="transporte",
+    ),
     groups_dict=GROUPS,
     aliases_dict=GROUP_ALIASES,
     list_datasets=list_datasets,
