@@ -73,6 +73,10 @@ fetcher = FetcherApp(
         id="anac",
         nome="ANAC - Dados Abertos",
         orgao="Agência Nacional de Aviação Civil (ANAC)",
+        licenca=(
+            "Sem licença declarada; dados públicos pela Lei 12.527/2011 (LAI) "
+            "e Decreto 8.777/2016"
+        ),
         homepage="https://www.gov.br/anac/",
         cadencia="daily",
         dominio="transporte",
