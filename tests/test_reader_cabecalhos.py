@@ -38,6 +38,12 @@ def test_coluna_de_nome_vazio_com_dados_ganha_nome_estavel(tmp_path: Path) -> No
     assert read_csv(src, {}).columns == ["a", "coluna_2", "c"]
 
 
+def test_nomes_validos_nao_sao_alterados(tmp_path: Path) -> None:
+    src = tmp_path / "x.csv"
+    src.write_text("Valor  de Venda; Data \n1;2\n", encoding="utf-8")
+    assert read_csv(src, {}).columns == ["Valor  de Venda", " Data "]
+
+
 def test_nome_com_controle_e_muito_longo(tmp_path: Path) -> None:
     longo = "y" * 200
     src = tmp_path / "x.csv"

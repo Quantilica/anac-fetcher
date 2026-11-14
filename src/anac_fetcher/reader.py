@@ -212,34 +212,45 @@ def _read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
             return _read_csv_unquoted(path, kwargs)
 
 
-_CONTROL_RUN = re.compile(r"[\x00-\x20\x7f-\xa0\u200b-\u200f\u2028\u2029\ufeff]+")
-_BLANK_NAME = re.compile(r"(_duplicated_\d+|__UNNAMED__\d+)?")
+_CONTROL_RUN = re.compile(r"[\x00-\x1f\x7f-\x9f]+")
+_BLANK_NAME = re.compile(r"(_duplicated_\d+)?")
 MAX_COLUMN_NAME = 128
 
 
-def _clean_columns(df: pl.DataFrame) -> pl.DataFrame:
-    """Garante nomes de colunas válidos: sem controle, não vazios, únicos, <= 128.
+def _valid_name(name: str) -> bool:
+    """Nome que o lake aceita: não vazio, sem controle e com até 128 caracteres."""
+    return (
+        bool(name.strip())
+        and len(name) <= MAX_COLUMN_NAME
+        and _CONTROL_RUN.search(name) is None
+    )
 
-    - Controles, quebras de linha e espaços repetidos viram um espaço só.
+
+def _clean_columns(df: pl.DataFrame) -> pl.DataFrame:
+    """Corrige só os nomes de coluna inválidos; os válidos passam como estão.
+
+    - Controle e quebra de linha viram um espaço.
     - Nome vazio (delimitador sobrando no fim do cabeçalho, ``_duplicated_N`` do
-      polars, ``__UNNAMED__N`` de planilha): a coluna é descartada quando não
-      tem nenhum valor; com valores, ganha o nome estável ``coluna_<posição>``
-      (posição 1-based no arquivo).
-    - Nome com mais de 128 caracteres é cortado; repetidos ganham ``_2``, ``_3``.
+      polars): a coluna é descartada quando não tem nenhum valor; com valores,
+      ganha o nome estável ``coluna_<posição>`` (posição 1-based no arquivo).
+    - Nome com mais de 128 caracteres é cortado; repetido ganha ``_2``, ``_3``.
+
+    Espaços das pontas ou repetidos, e nomes como ``__UNNAMED__N``, não mudam.
     """
     keep: list[str] = []
     final: list[str] = []
     seen: set[str] = set()
     for pos, col in enumerate(df.columns, start=1):
-        name = _CONTROL_RUN.sub(" ", col).strip()
-        if _BLANK_NAME.fullmatch(name):
+        name = col
+        if _BLANK_NAME.fullmatch(name.strip()):
             series = df[col]
             if series.dtype == pl.String:
                 series = series.str.strip_chars().replace("", None)
             if series.null_count() == series.len():
                 continue
             name = f"coluna_{pos}"
-        name = name[:MAX_COLUMN_NAME].rstrip()
+        elif not _valid_name(name):
+            name = _CONTROL_RUN.sub(" ", name).strip()[:MAX_COLUMN_NAME].rstrip()
         candidate, n = name, 1
         while candidate in seen:
             n += 1
