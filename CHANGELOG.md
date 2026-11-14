@@ -7,6 +7,12 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.8.0] - 2026-11-14
+
+### Corrigido
+- `aero-pistas-pouso` e `aero-posicoes-estacionamento` passam a ser lidos do JSON publicado junto (o CSV vem sem linha de cabeçalho: a primeira linha de dados virava os nomes das colunas). O arquivo do lake muda de `...-csv.parquet` para `...-json.parquet`: apague o antigo antes do `lake build --force`.
+- Nomes de coluna inválidos (vazio, controle, quebra de linha, acima de 128 caracteres, repetido) são corrigidos na leitura; espaços nas pontas e `__UNNAMED__N` não mudam.
+
 ### Adicionado
 - O fetcher declara os fatos da fonte (`FetcherInfo`: id canônico, apelidos, órgão, licença, página e cadência) para o registro de fetchers da Quantilica.
 
