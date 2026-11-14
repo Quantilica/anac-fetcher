@@ -174,7 +174,7 @@ def _sniff_separator(path: Path, skip_rows: int = 0) -> str:
     return max(counts, key=counts.__getitem__) or ";"
 
 
-def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
+def _read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
     """Lê um CSV da ANAC (utf-8 com fallback latin-1, separador sniffado).
 
     Args:
@@ -210,6 +210,60 @@ def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
         except Exception as exc2:
             logger.warning("%s: aspas malformadas (%s); lendo sem aspas", path, exc2)
             return _read_csv_unquoted(path, kwargs)
+
+
+_CONTROL_RUN = re.compile(r"[\x00-\x20\x7f-\xa0\u200b-\u200f\u2028\u2029\ufeff]+")
+_BLANK_NAME = re.compile(r"(_duplicated_\d+|__UNNAMED__\d+)?")
+MAX_COLUMN_NAME = 128
+
+
+def _clean_columns(df: pl.DataFrame) -> pl.DataFrame:
+    """Garante nomes de colunas válidos: sem controle, não vazios, únicos, <= 128.
+
+    - Controles, quebras de linha e espaços repetidos viram um espaço só.
+    - Nome vazio (delimitador sobrando no fim do cabeçalho, ``_duplicated_N`` do
+      polars, ``__UNNAMED__N`` de planilha): a coluna é descartada quando não
+      tem nenhum valor; com valores, ganha o nome estável ``coluna_<posição>``
+      (posição 1-based no arquivo).
+    - Nome com mais de 128 caracteres é cortado; repetidos ganham ``_2``, ``_3``.
+    """
+    keep: list[str] = []
+    final: list[str] = []
+    seen: set[str] = set()
+    for pos, col in enumerate(df.columns, start=1):
+        name = _CONTROL_RUN.sub(" ", col).strip()
+        if _BLANK_NAME.fullmatch(name):
+            series = df[col]
+            if series.dtype == pl.String:
+                series = series.str.strip_chars().replace("", None)
+            if series.null_count() == series.len():
+                continue
+            name = f"coluna_{pos}"
+        name = name[:MAX_COLUMN_NAME].rstrip()
+        candidate, n = name, 1
+        while candidate in seen:
+            n += 1
+            suffix = f"_{n}"
+            candidate = name[: MAX_COLUMN_NAME - len(suffix)].rstrip() + suffix
+        seen.add(candidate)
+        keep.append(col)
+        final.append(candidate)
+    out = df.select(keep)
+    out.columns = final
+    return out
+
+
+def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
+    """Lê um CSV da ANAC e devolve colunas com nomes válidos.
+
+    Args:
+        path (Path): Caminho do arquivo CSV.
+        spec (dict[str, Any]): Especificação de processamento do grupo.
+
+    Returns:
+        pl.DataFrame: O DataFrame lido, passado por :func:`_clean_columns`.
+    """
+    return _clean_columns(_read_csv(path, spec))
 
 
 _MAX_UNQUOTED_COLUMNS = 500
@@ -255,7 +309,7 @@ def _read_ndjson(path: Path) -> pl.DataFrame:
     )
 
 
-def read_json(path: Path) -> pl.DataFrame:
+def _read_json(path: Path) -> pl.DataFrame:
     """Lê um JSON tabular (array de objetos) como DataFrame.
 
     Arquivos da ANAC têm BOM (utf-8-sig). Fallback para ``json.loads`` +
@@ -301,6 +355,11 @@ def read_json(path: Path) -> pl.DataFrame:
             return pl.from_dicts(data, schema_overrides=overrides)
 
 
+def read_json(path: Path) -> pl.DataFrame:
+    """Lê um JSON tabular (array de objetos ou NDJSON) com nomes de coluna válidos."""
+    return _clean_columns(_read_json(path))
+
+
 def read_excel(
     path: Path, spec: dict[str, Any]
 ) -> pl.DataFrame | dict[str, pl.DataFrame]:
@@ -320,10 +379,10 @@ def read_excel(
     if sheet == "all":
         frames = pl.read_excel(path, sheet_id=0)
         assert isinstance(frames, dict), "sheet_id=0 deve retornar dict"
-        return frames
+        return {name: _clean_columns(f) for name, f in frames.items()}
     if sheet is None:
-        return pl.read_excel(path, sheet_id=None)
-    return pl.read_excel(path, sheet_id=sheet)
+        return _clean_columns(pl.read_excel(path, sheet_id=None))
+    return _clean_columns(pl.read_excel(path, sheet_id=sheet))
 
 
 def read_file(

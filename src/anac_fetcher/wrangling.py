@@ -50,6 +50,11 @@ PROCESSING_SPECS: dict[str, dict[str, Any]] = {
     # O CSV desta base vem quebrado (separador '\\""' literal e o cabeçalho repetido
     # a cada registro); o JSON (NDJSON) tem os mesmos dados.
     "empresas-aereas": {"formatos": (".json", ".csv")},
+    # O CSV destes dois é publicado sem linha de cabeçalho: a primeira linha de
+    # dados virava os nomes das colunas (inclusive um vazio). O JSON (NDJSON)
+    # tem os mesmos registros, com os nomes dos campos.
+    "aero-pistas-pouso": {"formatos": (".json", ".csv")},
+    "aero-posicoes-estacionamento": {"formatos": (".json", ".csv")},
 }
 
 
