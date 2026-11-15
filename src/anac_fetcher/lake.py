@@ -10,7 +10,7 @@ are stored unpartitioned. Data contracts are validated when available.
 from __future__ import annotations
 
 import re
-import tempfile
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -33,7 +33,7 @@ except ImportError as exc:
 from anac_fetcher import __version__
 from anac_fetcher.catalog import ALL_GROUP_KEYS, resolve_group
 from anac_fetcher.reader import (
-    decompress,
+    extracted_data,
     normalize_dtypes,
     parse_filename,
     read_file,
@@ -314,59 +314,58 @@ class LakeConverter:
                     )
                 writer = writers[writer_key]
 
-                # Decompress if compressed
-                source_path = raw_file
-                tmp_dir: tempfile.TemporaryDirectory[str] | None = None
-                if raw_file.suffix.lower() in (".zip", ".7z"):
+                # A pasta de extração (a raiz, subpastas incluídas) some ao
+                # sair do ``with``, em sucesso e em erro.
+                with ExitStack() as stack:
+                    source_path = raw_file
+                    if raw_file.suffix.lower() in (".zip", ".7z"):
+                        try:
+                            source_path = stack.enter_context(extracted_data(raw_file))
+                        except Exception as exc:
+                            result.errors.append(
+                                f"{raw_file.name}: erro na descompressão: {exc}"
+                            )
+                            continue
+
                     try:
-                        inner = decompress(raw_file)
-                        source_path = inner
-                    except Exception as exc:
-                        result.errors.append(
-                            f"{raw_file.name}: erro na descompressão: {exc}"
+                        data = read_file(source_path, spec)
+                        frames = (
+                            list(data.items())
+                            if isinstance(data, dict)
+                            else [(None, data)]
                         )
+
+                        for sheet, frame in frames:
+                            norm = normalize_dtypes(frame, spec)
+                            norm = _apply_contract(group, norm, raw_file.name)
+                            norm = drop_partition_columns(norm, part_keys)
+                            # Use sheet as file_key suffix if multi-sheet
+                            file_key_override = None
+                            if sheet is not None:
+                                file_key_override = composite_file_key(raw_file, sheet)
+
+                            written = writer.write_polars(
+                                norm,
+                                raw_file,
+                                partitions=part_vals,
+                                file_key_name=file_key_override,
+                                converter=f"anac-fetcher {__version__}",
+                            )
+                            if written.status == "skipped":
+                                result.skipped += 1
+                            else:
+                                result.converted += 1
+
+                    except (
+                        LakeError,
+                        OSError,
+                        pl.exceptions.PolarsError,
+                        Exception,
+                    ) as exc:
+                        message = str(exc).strip()
+                        first_line = message.splitlines()[0] if message else repr(exc)
+                        result.errors.append(f"{raw_file.name}: {first_line}")
                         continue
-
-                try:
-                    data = read_file(source_path, spec)
-                    frames = (
-                        list(data.items()) if isinstance(data, dict) else [(None, data)]
-                    )
-
-                    for sheet, frame in frames:
-                        norm = normalize_dtypes(frame, spec)
-                        norm = _apply_contract(group, norm, raw_file.name)
-                        norm = drop_partition_columns(norm, part_keys)
-                        # Use sheet as file_key suffix if multi-sheet
-                        file_key_override = None
-                        if sheet is not None:
-                            file_key_override = composite_file_key(raw_file, sheet)
-
-                        written = writer.write_polars(
-                            norm,
-                            raw_file,
-                            partitions=part_vals,
-                            file_key_name=file_key_override,
-                            converter=f"anac-fetcher {__version__}",
-                        )
-                        if written.status == "skipped":
-                            result.skipped += 1
-                        else:
-                            result.converted += 1
-
-                except (
-                    LakeError,
-                    OSError,
-                    pl.exceptions.PolarsError,
-                    Exception,
-                ) as exc:
-                    message = str(exc).strip()
-                    first_line = message.splitlines()[0] if message else repr(exc)
-                    result.errors.append(f"{raw_file.name}: {first_line}")
-                    continue
-                finally:
-                    if tmp_dir is not None:
-                        tmp_dir.cleanup()
 
         return result
 

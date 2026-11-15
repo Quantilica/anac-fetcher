@@ -8,7 +8,7 @@ import polars as pl
 import pytest
 
 from anac_fetcher.reader import (
-    decompress,
+    extracted_data,
     normalize_dtypes,
     parse_filename,
     provenance_metadata,
@@ -224,8 +224,8 @@ def test_decompress_zip(tmp_path):
     inner.write_bytes(b"\xd0\xcf\x11\xe0 fake-xlsx")
     with zipfile.ZipFile(raw, "w") as zf:
         zf.write(inner, "dados.xlsx")
-    extracted = decompress(raw)
-    assert extracted.suffix == ".xlsx"
+    with extracted_data(raw) as extracted:
+        assert extracted.suffix == ".xlsx"
 
 
 def test_provenance_metadata(tmp_path):

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import csv
 import logging
-import shutil
+from contextlib import ExitStack
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +25,7 @@ except ImportError as exc:
 
 from .contracts import CONTRACTS
 from .reader import (
-    decompress,
+    extracted_data,
     normalize_dtypes,
     parse_filename,
     read_file,
@@ -157,29 +157,26 @@ def convert_one(
     spec = spec_for(group)
     meta = parse_filename(raw_file)
     source_path = raw_file
-    tmp_dir: Path | None = None
 
     if raw_file.name.endswith(".manifest.json"):
         return []
 
-    if raw_file.suffix.lower() in (".zip", ".7z"):
-        try:
-            inner = decompress(raw_file)
-            tmp_dir = inner.parent
+    # A pasta de extração (a raiz, subpastas incluídas) some ao sair do ``with``.
+    with ExitStack() as stack:
+        if raw_file.suffix.lower() in (".zip", ".7z"):
+            try:
+                inner = stack.enter_context(extracted_data(raw_file))
+            except RuntimeError as exc:
+                logger.error("Falha ao descompactar %s: %s", raw_file.name, exc)
+                return []
             source_path = inner
-        except RuntimeError as exc:
-            logger.error("Falha ao descompactar %s: %s", raw_file.name, exc)
-            return []
-        raw_file = inner
+            raw_file = inner
 
-    try:
-        data = read_file(raw_file, spec)
-    except Exception as exc:
-        logger.error("Falha ao ler %s: %s", raw_file.name, exc)
-        return []
-    finally:
-        if tmp_dir is not None:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+        try:
+            data = read_file(raw_file, spec)
+        except Exception as exc:
+            logger.error("Falha ao ler %s: %s", raw_file.name, exc)
+            return []
 
     written: list[Path] = []
     if isinstance(data, dict):
