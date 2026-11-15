@@ -331,9 +331,12 @@ def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
                 path, encoding=enc, decimal=",", quote_char=None, **kwargs
             )
             break
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 - tenta a outra codificação
             if enc == "latin-1":
                 raise
+            logger.debug(
+                "%s: leitura como %s falhou (%s); tentando latin-1", path, enc, exc
+            )
     if df.width > _MAX_UNQUOTED_COLUMNS:
         raise ValueError(
             f"{path.name}: {df.width} colunas lido sem aspas; CSV quebrado na origem"
@@ -348,7 +351,13 @@ def _read_ndjson(path: Path) -> pl.DataFrame:
     """Lê NDJSON em streaming; listas viram texto separado por ``; ``."""
     try:
         df = pl.read_ndjson(path, infer_schema_length=None)
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 - fallback tolerante; registros inválidos são descartados
+        logger.warning(
+            "%s: NDJSON estrito falhou (%s); relendo com ignore_errors=True "
+            "(registros malformados serão descartados)",
+            path,
+            exc,
+        )
         df = pl.read_ndjson(path, infer_schema_length=None, ignore_errors=True)
     return df.with_columns(
         pl.col(c).cast(pl.List(pl.String)).list.join("; ")
@@ -385,7 +394,10 @@ def _read_json(path: Path) -> pl.DataFrame:
         text = path.read_text(encoding="latin-1")
     try:
         return pl.read_json(BytesIO(text.encode("utf-8")))
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 - JSON da ANAC varia; tenta variantes abaixo
+        logger.debug(
+            "%s: leitura JSON estrita falhou (%s); tentando variantes", path, exc
+        )
         if "][" in text:
             # dados-estatisticos: várias páginas ("[...][...]") no mesmo arquivo,
             # de centenas de MB; unidas num array só, sem passar pelo json.loads.
@@ -396,9 +408,14 @@ def _read_json(path: Path) -> pl.DataFrame:
         data = _json.loads(text)
         try:
             return pl.from_dicts(data)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001 - tipos mistos exigem override String
             # Tipos mistos na mesma coluna (ex.: "0" string vs. null) — força
             # String para não perder registros (o CSV geminado tem tipos).
+            logger.debug(
+                "%s: inferência de schema falhou (%s); forçando String nas colunas",
+                path,
+                exc,
+            )
             overrides = {col: pl.Utf8 for col in data[0]}
             return pl.from_dicts(data, schema_overrides=overrides)
 
