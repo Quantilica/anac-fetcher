@@ -1,0 +1,237 @@
+{
+  "fonte": "anac",
+  "dataset": "dados-estatisticos",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "EMPRESA_SIGLA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "EMPRESA_NOME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "EMPRESA_NACIONALIDADE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ANO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MES",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_SIGLA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_NOME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_REGIAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_PAIS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_ORIGEM_CONTINENTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_SIGLA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_NOME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_REGIAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_PAIS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AEROPORTO_DE_DESTINO_CONTINENTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NATUREZA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "GRUPO_DE_VOO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PASSAGEIROS_PAGOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PASSAGEIROS_GRATIS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CARGA_PAGA_KG",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CARGA_GRATIS_KG",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CORREIO_KG",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ASK",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RPK",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ATK",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RTK",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "COMBUSTIVEL_LITROS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DISTANCIA_VOADA_KM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DECOLAGENS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CARGA_PAGA_KM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CARGA_GRATIS_KM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CORREIO_KM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ASSENTOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PAYLOAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "HORAS_VOADAS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "BAGAGEM_KG",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

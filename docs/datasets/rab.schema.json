@@ -1,0 +1,408 @@
+{
+  "fonte": "anac",
+  "dataset": "rab",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "MARCA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PROPRIETARIO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OUTROSPROPRIETARIOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "SGUF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CPFCNPJ",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NMOPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OUTROSOPERADORES",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UFOPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CPFCGC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRCERTMATRICULA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRSERIE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDCATEGORIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDTIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DSMODELO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NMFABRICANTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDCLS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRPMD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDTIPOICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRTRIPULACAOMIN",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRPASSAGEIROSMAX",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRASSENTOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRANOFABRICACAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DTVALIDADEIAM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DTVALIDADECA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DTCANC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DSMOTIVOCANC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDINTERDICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDMARCANAC1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDMARCANAC2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDMARCANAC3",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CDMARCAESTRANGEIRA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DSGRAVAME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_MATRICULA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OUTROS_PROPRIETARIOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "SG_UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CPF_CNPJ",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NM_OPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OUTROS_OPERADORES",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF_OPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CPF_CGC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_CERT_MATRICULA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_SERIE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_CATEGORIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_TIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DS_MODELO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NM_FABRICANTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_CLS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_PMD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_TIPO_ICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_TRIPULACAO_MIN",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_PASSAGEIROS_MAX",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_ASSENTOS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_ANO_FABRICACAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_VALIDADE_CVA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_VALIDADE_CA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_CANC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DS_MOTIVO_CANC",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_INTERDICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_MARCA_NAC1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_MARCA_NAC2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_MARCA_NAC3",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CD_MARCA_ESTRANGEIRA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DS_GRAVAME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TP_POUSO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_MOTOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TP_MOTOR",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 5
+}

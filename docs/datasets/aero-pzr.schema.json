@@ -1,0 +1,51 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-pzr",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AERÓDROMO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MUNICÍPIO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CLASSE PBZR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LINK",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 2
+}

@@ -1,0 +1,63 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-seguranca",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Nome",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Emenda RBAC107",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Revisao IS107",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Capacidade aeronave",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Servicos Aereos",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Número da Portaria",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Data de Publicação",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

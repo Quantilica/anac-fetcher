@@ -1,0 +1,84 @@
+{
+  "fonte": "anac",
+  "dataset": "vra",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "ICAO Empresa Aérea",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Número Voo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Código Autorização (DI)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Código Tipo Linha",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ICAO Aeródromo Origem",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ICAO Aeródromo Destino",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Partida Prevista",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Partida Real",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Chegada Prevista",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Chegada Real",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Situação Voo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Código Justificativa",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 4
+}

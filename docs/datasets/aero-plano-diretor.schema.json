@@ -1,0 +1,51 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-plano-diretor",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AERODROMO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MUNICIPIO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LINK",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PORTARIA",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 2
+}

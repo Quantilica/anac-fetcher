@@ -7,6 +7,9 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- Documentação dos dados em `docs/`, conforme a norma de documentação dos dados: página da fonte e página de cada um dos 23 datasets, com o dicionário de todas as colunas (descrição oficial da ANAC onde existe) e esquema de referência. Um teste a verifica. `aero-heliponto-privado` está como `parcial` (veja a página).
+
 ### Corrigido
 - CI: o pyproject declara o PyPI antes do índice Quantilica (`[[tool.uv.index]]`), e o workflow perde `--index` e `--index-strategy`. Com a estratégia padrão `first-index`, o `uv sync` só consulta o índice para o que não está no PyPI (`quantilica-analytics`) e deixa de receber o 503 intermitente que o GitHub Pages devolve a caminhos inexistentes.
 - `reader`: os fallbacks de leitura (CSV em codificação alternativa, NDJSON relido com `ignore_errors`, JSON de páginas unidas e `from_dicts` com tipos mistos) registram em log o motivo da falha, em vez de engolir o erro em silêncio. Sem mudança de comportamento.

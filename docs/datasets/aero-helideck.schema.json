@@ -1,0 +1,63 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-helideck",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "CÓDIGO OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NOME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ALTITUDE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RESISTÊNCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "COMPRIMENTO DO MAIOR HELICÓPTERO A OPERAR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "VALIDADE DO CADASTRO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PORTARIA DE REGISTRO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LINK PORTARIA",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

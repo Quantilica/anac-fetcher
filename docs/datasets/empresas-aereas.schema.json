@@ -1,0 +1,153 @@
+{
+  "fonte": "anac",
+  "dataset": "empresas-aereas",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "Título",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MCDA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "atividades_aereas",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "icao",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "cidade",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "cnpj",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "email",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "situacao",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Fonte",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "razao_social",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Data",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "cep",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "validade_operacional",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "iata",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "uf",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "endereco_sede",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "decisao_operacional",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Data da última Ingestão",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ConjuntoDado",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "id_empresa_aerea",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "data_decisao_operacional",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "uf_iso",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ReferenciaData",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "telefone",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}
