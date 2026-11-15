@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+
+## [0.9.1] - 2026-11-15
 ### Adicionado
 - Documentação dos dados em `docs/`, conforme a norma de documentação dos dados: página da fonte e página de cada um dos 23 datasets, com o dicionário de todas as colunas (descrição oficial da ANAC onde existe) e esquema de referência. Um teste a verifica. `aero-heliponto-privado` está como `parcial` (veja a página).
 
