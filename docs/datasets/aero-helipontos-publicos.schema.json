@@ -1,0 +1,117 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-helipontos-publicos",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "IDENTIFICAÇÃO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LATITUDE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LONGITUDE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ELEVAÇÃO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OPERAÇÃO DIURNA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OPERAÇÃO NOTURNA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "SUPERFICIE PAVIMENTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RESISTÊNCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "FATO - FORMATO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "FATO - DIMENSÕES",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LUZ DE APROXIMAÇÃO DE HELIPONTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LUZ DE TLOF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "INDICADOR VISUAL DE RAMPA DE APROXIMAÇÃO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LUZ INDICADORA DE FATO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LUZ DE PONTO DE VISADA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LUZ DE OBSTÁCULO",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

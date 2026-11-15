@@ -1,0 +1,93 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-pistas-taxi",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "ID_AERODROMO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ID_PISTA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NM_PISTA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_COMPRIMENTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_LARGURA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DS_RESISTENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NM_PAVIMENTO_TIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CODIGO_REFERENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ID_PISTA_CABECEIRA_MENOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CAB_MENOR_REGRA_VOO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ID_PISTA_CABECEIRA_MAIOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CAB_MAIOR_REGRA_VOO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "FG_LUZ_EIXO_PISTA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "FG_LUZ_BORDA_PISTA",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

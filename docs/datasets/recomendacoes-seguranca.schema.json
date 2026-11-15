@@ -1,0 +1,93 @@
+{
+  "fonte": "anac",
+  "dataset": "recomendacoes-seguranca",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "NUMERO_OCORRENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NUMERO_PROCESSO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CATEGORIA_OCORRENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MATRICULA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DATA_OCORRENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NRO_RECOM_SEGURANCA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TXT_RECOM_SEGURANCA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CLASS_RECOM_SEGURANCA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DATA_RECEBIMENTO_RECOM",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "AREA_COMPETENTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "STATUS_ANAC_RECOMENDACAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PRAZO_RESPOSTA_RECOM_SEGURANCA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TEXTO_RESPOSTA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DATA_RESPOSTA",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

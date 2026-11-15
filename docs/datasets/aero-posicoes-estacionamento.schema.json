@@ -1,0 +1,63 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-posicoes-estacionamento",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "MCDA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "id_aerodromo",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "nm_sistema_orientacao_estacionamento",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "nm_codigo_referencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ConjuntoDado",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "id_pista",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "id_estacionamento_aeronaves_configuracao",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "id_estacionamento_aeronaves_posicao",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "nm_identificacao",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

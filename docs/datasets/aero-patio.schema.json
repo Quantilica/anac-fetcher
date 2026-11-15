@@ -1,0 +1,39 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-patio",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NMAERODROMO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "IDENTIFICACAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "SUPERFICIEPAVIMENTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RESISTENCIAVALOR",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

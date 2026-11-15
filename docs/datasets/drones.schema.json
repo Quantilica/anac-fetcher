@@ -1,0 +1,72 @@
+{
+  "fonte": "anac",
+  "dataset": "drones",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "CODIGO_AERONAVE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DATA_VALIDADE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "OPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CPF_CNPJ",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "TIPO_USO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "FABRICANTE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MODELO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NUMERO_SERIE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PESO_MAXIMO_DECOLAGEM_KG",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "RAMO_ATIVIDADE",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 2
+}

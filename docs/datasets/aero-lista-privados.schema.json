@@ -1,0 +1,153 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-lista-privados",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "Código OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Nome",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Município",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Longitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Latitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Altitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operação Diurna",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operação Noturna",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Designação 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Comprimento 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Largura 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Resistência 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Superfície 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Designação 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Comprimento 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Largura 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Resistência 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Superfície 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Portaria de Registro",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Link Portaria",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LATGEOPOINT",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LONGEOPOINT",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

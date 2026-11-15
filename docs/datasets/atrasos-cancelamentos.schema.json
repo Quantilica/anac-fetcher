@@ -1,0 +1,72 @@
+{
+  "fonte": "anac",
+  "dataset": "atrasos-cancelamentos",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "Empresa_Aerea",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "N_Voo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeroporto_Origem_Designador_OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeroporto_Origem_Nome_UF_Pais",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeroporto_Destino_Designador_OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeroporto_Destino_Nome_UF_Pais",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Etapas_Previstas",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Percentuais_de_Cancelamentos",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Percentuais_de_Atrasos_superiores_a_30_minutos",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Percentuais_de_Atrasos_superiores_a_60_minutos",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 15
+}

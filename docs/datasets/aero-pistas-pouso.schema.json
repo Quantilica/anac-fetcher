@@ -1,0 +1,105 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-pistas-pouso",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "ds_resistencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "cab_maior_regra_voo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MCDA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "codigo_referencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "id_aerodromo",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "qt_comprimento",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "cab_menor_regra_voo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "fg_luz_borda_pista",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "ConjuntoDado",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "qt_largura",
+      "tipos": [
+        "double"
+      ]
+    },
+    {
+      "nome": "nm_pavimento_tipo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "nm_pista",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "fg_luz_eixo_pista",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "id_pista",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "id_pista_cabeceira_menor",
+      "tipos": [
+        "int64"
+      ]
+    },
+    {
+      "nome": "id_pista_cabeceira_maior",
+      "tipos": [
+        "int64"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

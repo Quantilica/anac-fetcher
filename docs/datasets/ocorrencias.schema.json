@@ -1,0 +1,279 @@
+{
+  "fonte": "anac",
+  "dataset": "ocorrencias",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "Numero_da_Ocorrencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Numero_da_Ficha",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operador_Padronizado",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Classificacao_da_Ocorrencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Data_da_Ocorrencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Hora_da_Ocorrencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Municipio",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Regiao",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Descricao_do_Tipo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "ICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Latitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Longitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo_de_Aerodromo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Historico",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Matricula",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Categoria_da_Aeronave",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operador",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo_de_Ocorrencia",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Fase_da_Operacao",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operacao",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Danos_a_Aeronave",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aerodromo_de_Destino",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aerodromo_de_Origem",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Fatais_Tripulantes",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Fatais_Passageiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Fatais_Terceiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Graves_Tripulantes",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Graves_Passageiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Graves_Terceiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Leves_Tripulantes",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Leves_Passageiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Leves_Terceiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Ilesos_Tripulantes",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Ilesos_Passageiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Desconhecidas_Tripulantes",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Desconhecidas_Passageiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Lesoes_Desconhecidas_Terceiros",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Modelo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CLS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo_ICAO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PMD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Numero_de_Assentos",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Nome_do_Fabricante",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PSSO",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

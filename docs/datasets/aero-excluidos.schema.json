@@ -1,0 +1,51 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-excluidos",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NOME",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "MUNICIPIO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LATITUDE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "LONGITUDE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "PORTARIA DE EXCLUSAO",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}

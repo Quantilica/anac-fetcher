@@ -1,0 +1,156 @@
+{
+  "fonte": "anac",
+  "dataset": "movimentacao-aeroportuaria",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [
+    "ano",
+    "mes"
+  ],
+  "colunas": [
+    {
+      "nome": "NR_AEROPORTO_REFERENCIA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_MOVIMENTO_TIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_AERONAVE_MARCAS",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_AERONAVE_TIPO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_AERONAVE_OPERADOR",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_VOO_OUTRO_AEROPORTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_VOO_NUMERO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_SERVICE_TYPE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_NATUREZA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_PREVISTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "HH_PREVISTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_CALCO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "HH_CALCO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "DT_TOQUE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "HH_TOQUE",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_CABECEIRA",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_BOX",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_PONTE_CONECTOR_REMOTO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "NR_TERMINAL",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_PAX_LOCAL",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_PAX_CONEXAO_DOMESTICO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_PAX_CONEXAO_INTERNACIONAL",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_CORREIO",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "QT_CARGA",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 3
+}

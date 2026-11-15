@@ -1,0 +1,309 @@
+{
+  "fonte": "anac",
+  "dataset": "aero-caracteristicas",
+  "gerado_em": "2026-11-15T17:54:49+00:00",
+  "particoes": [],
+  "colunas": [
+    {
+      "nome": "Id do Aeródromo",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "CIAD",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Código OACI",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Id to Tipo de Uso",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo de Uso",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Nome",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Município",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "País",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Município Servido",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "UF Servido",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Latitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Longitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Altitude",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operação Diurna",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Operação Noturna",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Id da Pista 1",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Designação (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Comprimento (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Largura (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Resistência (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Superfície (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeronave Crítica (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo Operação por Cabeceira (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Luzes de Eixo de Pista (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Luzes de Borda de Pista (Pista 1)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Id da Pista 2",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Designação (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Comprimento (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Largura (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Resistência (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Superfície (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Aeronave Crítica (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo Operação por Cabeceira (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Luzes de Eixo de Pista (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Luzes de Borda de Pista (Pista 2)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo de Cadastro",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Situação",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Classe RBAC 153",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Perfil Operacional RBAC 153",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Classe RBAC 107",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo de Operação Internacional (nomenclatura OACI)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Tipo de Operação Internacional (conforme AIP BRASIL)",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Certificação Operacional",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Portaria de Certificação",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Validade do Cadastro",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Portaria de Cadastro",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Restrição",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Referência Cautelar",
+      "tipos": [
+        "large_string"
+      ]
+    },
+    {
+      "nome": "Amazônia Legal",
+      "tipos": [
+        "large_string"
+      ]
+    }
+  ],
+  "arquivos": 1
+}
