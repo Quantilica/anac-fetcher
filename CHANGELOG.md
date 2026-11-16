@@ -7,6 +7,8 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+
+## [0.10.0] - 2026-11-16
 ### Alterado
 - **Quebra de layout no lake: `atrasos-cancelamentos` passa a um Parquet por anexo e mês, com proveniência.** Os anexos (I, II e III) têm esquemas e granularidades diferentes (10, 9 e 8 colunas na maioria dos meses), então não são juntados: o agrupamento é por tabela. Em `anac/atrasos-cancelamentos/ano=AAAA/mes=MM/`:
   - antes: `atrasos-cancelamentos_AAAA-MM_anexo-i.parquet`, `..._anexo-ii.parquet`, `..._anexo-iii.parquet` e, nos meses baixados por versões antigas, também `atrasos-cancelamentos_AAAA-MM.parquet` (4 arquivos por mês);
