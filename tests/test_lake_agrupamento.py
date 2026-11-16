@@ -21,7 +21,12 @@ from quantilica.analytics.lake import (  # noqa: E402
 from quantilica.core.lake import DatasetDescriptor, partition_types_for  # noqa: E402
 
 import anac_fetcher.lake as lake_mod  # noqa: E402
-from anac_fetcher.lake import SOURCE_ID, converter, fold_twins, route_group  # noqa: E402
+from anac_fetcher.lake import (  # noqa: E402
+    SOURCE_ID,
+    converter,
+    fold_twins,
+    route_group,
+)
 from anac_fetcher.reader import parse_filename  # noqa: E402
 from anac_fetcher.storage import _GROUP_DIRS  # noqa: E402
 from anac_fetcher.wrangling import spec_for  # noqa: E402
