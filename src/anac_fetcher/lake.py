@@ -18,6 +18,7 @@ table, and the old Parquet of the copy is removed when the annex is converted.
 
 from __future__ import annotations
 
+import logging
 import re
 from collections import defaultdict
 from contextlib import ExitStack
@@ -27,7 +28,13 @@ from typing import TYPE_CHECKING, Any
 
 try:
     import polars as pl
-    from quantilica.analytics.lake import GroupMember, LakeError, LakeWriter
+    import pyarrow.parquet as pq
+    from quantilica.analytics.lake import (
+        META_ORIGIN_SHA,
+        GroupMember,
+        LakeError,
+        LakeWriter,
+    )
     from quantilica.core.files import sha256_file
     from quantilica.core.lake import (
         DatasetDescriptor,
@@ -55,6 +62,8 @@ from anac_fetcher.wrangling import _apply_contract, spec_for
 
 if TYPE_CHECKING:  # só tipagem: o core publicado antes do contrato não tem Planned
     from quantilica.core.lake import Planned
+
+logger = logging.getLogger(__name__)
 
 SOURCE_ID = "anac"
 
@@ -210,19 +219,29 @@ class Routed:
     # Arquivos byte a byte iguais a este, que não são tabela própria (ver
     # :func:`fold_twins`): o conversor não os lê e o inventário os dá como gêmeos.
     twins: tuple[Path, ...] = ()
+    # sha256 do arquivo, quando o roteamento já o calculou (não calcular de novo).
+    sha256: str | None = None
 
 
-def fold_twins(routed: list[Routed]) -> tuple[list[Routed], list[Path]]:
-    """Separa os arquivos sem sufixo de anexo que copiam um anexo da mesma partição.
+def fold_twins(routed: list[Routed]) -> tuple[list[Routed], list[Path], list[Path]]:
+    """Separa os arquivos sem sufixo de anexo que não são tabela.
 
     Versões antigas do fetcher gravavam os anexos de uma partição no mesmo nome
     (``<base>_<AAAA-MM>``, sem o slug): o que ficou é o último baixado, byte a
     byte igual a um dos anexos (conferido pelo sha256 dos manifests de 284 meses).
-    Convertê-lo duplica as linhas desse anexo no lake. Um arquivo sem sufixo cujo
-    sha256 não é o de nenhum anexo continua sendo uma tabela.
+    Convertê-lo duplica as linhas desse anexo no lake. Numa partição que tem
+    anexos, o arquivo sem sufixo é:
+
+    * **gêmeo**, se o sha256 é o de um anexo (não é lido; o anexo o registra em
+      ``twins``);
+    * **superado**, se não é o de nenhum: é uma versão antiga de um anexo que foi
+      revisado depois (um aviso vai para o log) e também não é convertido.
+
+    Só numa partição sem nenhum anexo o arquivo sem sufixo é uma tabela.
 
     Returns:
-        Os itens que ficam (cada anexo com seus ``twins``) e os gêmeos.
+        Os itens que ficam (cada anexo com seus ``twins`` e o ``sha256`` já
+        calculado), os gêmeos e os superados.
     """
     by_partition: dict[tuple[str, tuple], list[Routed]] = defaultdict(list)
     for item in routed:
@@ -231,25 +250,36 @@ def fold_twins(routed: list[Routed]) -> tuple[list[Routed], list[Path]]:
 
     kept: list[Routed] = []
     twins: list[Path] = []
+    superseded: list[Path] = []
     for items in by_partition.values():
         annexes = [i for i in items if parse_filename(i.path)["slug"]]
         bare = [i for i in items if not parse_filename(i.path)["slug"]]
         if not annexes or not bare:
             kept.extend(items)
             continue
+        digests = {i.path: sha256_file(i.path) for i in annexes}
         owners: dict[str, Routed] = {}
         for item in sorted(annexes, key=lambda i: i.path):
-            owners.setdefault(sha256_file(item.path), item)
+            owners.setdefault(digests[item.path], item)
         folded: dict[Path, list[Path]] = defaultdict(list)
         for item in bare:
             owner = owners.get(sha256_file(item.path))
-            if owner is None:
-                kept.append(item)
-            else:
+            if owner is not None:
                 folded[owner.path].append(item.path)
                 twins.append(item.path)
-        kept.extend(replace(i, twins=tuple(folded.get(i.path, ()))) for i in annexes)
-    return sorted(kept, key=lambda i: i.path), sorted(twins)
+            else:
+                superseded.append(item.path)
+                logger.warning(
+                    "%s: sem sufixo de anexo e diferente de todos os anexos de "
+                    "%s: versão antiga de um anexo revisado; não é convertido",
+                    item.path.name,
+                    "/".join(item.partition_values.values()),
+                )
+        kept.extend(
+            replace(i, twins=tuple(folded.get(i.path, ())), sha256=digests[i.path])
+            for i in annexes
+        )
+    return sorted(kept, key=lambda i: i.path), sorted(twins), sorted(superseded)
 
 
 def route_group(
@@ -263,8 +293,9 @@ def route_group(
     (:func:`dataset_for_granularity`). Os arquivos descartados voltam com o
     motivo do inventário: ``"gemeo"`` (mesmo conteúdo em outro formato),
     ``"nao_tabular"`` (formato que o leitor não abre) ou ``"superado"``
-    (versão anterior do mesmo formato). Nos grupos por tabela, o arquivo sem
-    sufixo de anexo que copia um anexo também volta como ``"gemeo"``.
+    (versão anterior do mesmo formato). Nos grupos por tabela, numa partição com
+    anexos, o arquivo sem sufixo de anexo volta como ``"gemeo"`` se copia um anexo
+    e como ``"superado"`` se não (ver :func:`fold_twins`).
     """
     preferred = spec_for(group).get("formatos")
     files = raw_files(src_group_dir)
@@ -283,13 +314,15 @@ def route_group(
         for path, keys, vals in resolved
     ]
 
-    folded: list[Path] = []
+    twins: list[Path] = []
+    stale: list[Path] = []
     if group in _GRUPOS_POR_TABELA:
-        routed, folded = fold_twins(routed)
+        routed, twins, stale = fold_twins(routed)
 
     routed_paths = {item.path for item in routed}
-    folded_paths = set(folded)
-    ignored: list[tuple[Path, str]] = [(path, "gemeo") for path in folded]
+    folded_paths = {*twins, *stale}
+    ignored: list[tuple[Path, str]] = [(path, "gemeo") for path in twins]
+    ignored += [(path, "superado") for path in stale]
     for path in files:
         if path in routed_paths or path in folded_paths:
             continue
@@ -302,6 +335,16 @@ def route_group(
         )
         ignored.append((path, reason))
     return routed, ignored
+
+
+def _origin_sha(path: Path) -> str | None:
+    """O ``origin_sha256`` do rodapé de um Parquet de um arquivo por bruto."""
+    try:
+        meta = pq.ParquetFile(path).metadata.metadata or {}
+    except Exception:  # noqa: BLE001 - ausente ou danificado: sem origem conhecida
+        return None
+    value = meta.get(META_ORIGIN_SHA.encode())
+    return value.decode() if value else None
 
 
 def _read_table(
@@ -478,6 +521,7 @@ class LakeConverter:
         Parquets antigos (o do próprio anexo e o da cópia sem sufixo) pelo novo.
         """
         writers: dict[str, LakeWriter] = {}
+        partition_info: dict[tuple, tuple[Path, dict[str, Any], set[str]]] = {}
         for item in routed:
             raw_file = item.path
             writer_key = f"{item.dataset_id}:" + ",".join(item.partition_keys)
@@ -505,18 +549,28 @@ class LakeConverter:
             # anexo, o de cada cópia e o do nome sem sufixo, que as versões
             # antigas gravavam. Só saem se o sha256 de origem for o do anexo.
             replaces = {file_key(raw_file), *(file_key(t) for t in item.twins)}
-            if slug and meta["year"] and meta["part"]:
-                replaces.add(f"{meta['base_id']}_{meta['year']}-{meta['part']:02d}")
-            # Só os que existem: o writer avisa no log de cada chave sem Parquet.
             folder = writer.dataset_dir.joinpath(
                 *(f"{k}={v}" for k, v in item.partition_values.items())
             )
+            digest = item.sha256 or sha256_file(raw_file)
+            if slug and meta["year"] and meta["part"]:
+                # O Parquet sem sufixo de um bruto que já saiu da visão: este anexo
+                # o reivindica se, e só se, a origem dele for este arquivo.
+                legacy = f"{meta['base_id']}_{meta['year']}-{meta['part']:02d}"
+                if _origin_sha(folder / f"{legacy}.parquet") == digest:
+                    replaces.add(legacy)
+            # Só os que existem: o writer avisa no log de cada chave sem Parquet.
             replaces = {k for k in replaces if (folder / f"{k}.parquet").is_file()}
+            if slug:
+                partition_info.setdefault(
+                    (item.dataset_id, tuple(item.partition_values.items())),
+                    (folder, meta, set()),
+                )[2].add(digest)
 
             def frame(raw_file: Path = raw_file, item: Routed = item):
                 return _read_table(group, spec, raw_file, item.partition_keys)
 
-            member = GroupMember(raw_file, frame)
+            member = GroupMember(raw_file, frame, sha256=digest)
             options = {
                 "partitions": item.partition_values,
                 "contract_version": CONTRACT_VERSION,
@@ -537,11 +591,34 @@ class LakeConverter:
                 first_line = message.splitlines()[0] if message else repr(exc)
                 result.errors.append(f"{raw_file.name}: {first_line}")
                 continue
+            for kept in written.not_replaced:
+                result.errors.append(
+                    f"{group_key}: Parquet antigo mantido, de origem que não é o "
+                    f"arquivo bruto do grupo: {kept}; as linhas dele ficam "
+                    "duplicadas no mês até você removê-lo (é de uma versão "
+                    "anterior do anexo)"
+                )
             if current or written.status == "skipped":
                 result.skipped += 1
             else:
                 result.converted += len(written.written)
                 result.skipped += len(written.kept)
+
+        # O Parquet sem sufixo que nenhum anexo da partição reivindicou, de um
+        # bruto que já não está na visão ou foi revisado: as linhas dele ficam
+        # duplicadas com as do anexo atual.
+        for folder, meta, digests in partition_info.values():
+            if not (meta["year"] and meta["part"]):
+                continue
+            legacy = (
+                folder / f"{meta['base_id']}_{meta['year']}-{meta['part']:02d}.parquet"
+            )
+            if legacy.is_file() and _origin_sha(legacy) not in digests:
+                result.errors.append(
+                    f"{legacy.name}: Parquet sem sufixo de anexo, de um arquivo que "
+                    "não é nenhum dos anexos atuais (versão antiga de um anexo): "
+                    f"{legacy}; remova-o, senão as linhas ficam duplicadas"
+                )
 
     def inventory(self, input_dir: Path) -> list[Planned]:
         """Um ``Planned`` por arquivo bruto: o dataset ou o motivo de ignorar.

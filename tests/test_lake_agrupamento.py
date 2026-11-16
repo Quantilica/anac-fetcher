@@ -194,24 +194,141 @@ def test_migracao_remove_os_parquets_antigos_inclusive_a_copia_sem_sufixo(
     assert converter.convert(raw, lake).converted == 0
 
 
-def test_migracao_nao_apaga_o_sem_sufixo_que_nao_copia_um_anexo(
-    raw: Path, tmp_path: Path
-) -> None:
+def _sem_sufixo_diferente(raw: Path) -> Path:
+    """Arquivo sem sufixo em 2026-08 (que tem o Anexo III) que não copia o anexo."""
     pasta = raw / _GROUP_DIRS[DATASET]
-    diferente = pasta / "atrasos-cancelamentos_2026-08@20261001.csv"
-    diferente.write_text("A;B\n1;2\n", encoding="utf-8")
+    antigo = pasta / "atrasos-cancelamentos_2026-08@20261001.csv"
+    antigo.write_text("A;B\n1;2\n", encoding="utf-8")
+    return antigo
+
+
+def test_sem_sufixo_que_nao_copia_anexo_num_mes_com_anexos_e_superado(
+    raw: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    antigo = _sem_sufixo_diferente(raw)
+    avisos: list[str] = []
+    monkeypatch.setattr(
+        lake_mod.logger, "warning", lambda msg, *a: avisos.append(msg % a)
+    )
     lake = tmp_path / "lake"
-    _legacy_convert(raw, lake)
 
     res = converter.convert(raw, lake)
 
-    assert not res.errors
-    # Não é cópia de anexo: continua tabela própria, agora no arquivo do mês.
-    pasta_lake = lake / SOURCE_ID / DATASET / "ano=2026/mes=08"
-    assert sorted(p.name for p in pasta_lake.glob("*.parquet")) == [
-        "atrasos-cancelamentos_202608.parquet",
-        "atrasos-cancelamentos_202608_anexo-iii.parquet",
+    assert not res.errors and res.converted == 9
+    pasta = lake / SOURCE_ID / DATASET / "ano=2026/mes=08"
+    assert [p.name for p in pasta.glob("*.parquet")] == [
+        "atrasos-cancelamentos_202608_anexo-iii.parquet"
     ]
+    assert any(antigo.name in a and "revisado" in a for a in avisos)
+    itens = {Path(i.path).name: i for i in converter.inventory(raw)}
+    assert itens[antigo.name].skip_reason == "superado"
+    assert itens[antigo.name].dataset is None
+
+
+def test_auditoria_nao_acusa_o_sem_sufixo_superado(raw: Path, tmp_path: Path) -> None:
+    entrada = tmp_path / "entrada"
+    shutil.copytree(raw, entrada / SOURCE_ID)
+    _sem_sufixo_diferente(entrada / SOURCE_ID)
+    lake = tmp_path / "lake"
+    assert not converter.convert(entrada / SOURCE_ID, lake).errors
+
+    report = lake_audit(
+        lake, input_dir=entrada, converters={SOURCE_ID: converter}, rehash=True
+    )
+
+    assert report.ok, report.to_text()
+    assert not [f for f in report.findings if f.category == "sem_parquet"]
+
+
+def test_sem_sufixo_num_mes_sem_anexos_e_tabela_propria(
+    raw: Path, tmp_path: Path
+) -> None:
+    pasta = raw / _GROUP_DIRS[DATASET]
+    (pasta / "atrasos-cancelamentos_2026-07@20261001.csv").write_text(
+        "A;B\n1;2\n", encoding="utf-8"
+    )
+
+    res = converter.convert(raw, tmp_path / "lake")
+
+    assert not res.errors and res.converted == 10
+    mes = tmp_path / "lake" / SOURCE_ID / DATASET / "ano=2026/mes=07"
+    assert [p.name for p in mes.glob("*.parquet")] == [
+        "atrasos-cancelamentos_202607.parquet"
+    ]
+
+
+def test_parquet_antigo_do_sem_sufixo_superado_e_acusado(
+    raw: Path, tmp_path: Path
+) -> None:
+    antigo = _sem_sufixo_diferente(raw)
+    lake = tmp_path / "lake"
+    _legacy_convert(raw, lake)
+    assert (
+        lake
+        / SOURCE_ID
+        / DATASET
+        / "ano=2026/mes=08"
+        / "atrasos-cancelamentos_2026-08.parquet"
+    ).exists()
+
+    res = converter.convert(raw, lake)
+
+    assert any("atrasos-cancelamentos_2026-08.parquet" in e for e in res.errors)
+    assert antigo.exists()
+
+
+def test_anexo_revisado_acusa_o_parquet_antigo_que_ficou(
+    raw: Path, tmp_path: Path
+) -> None:
+    lake = tmp_path / "lake"
+    _legacy_convert(raw, lake)
+    anexo = (
+        raw
+        / _GROUP_DIRS[DATASET]
+        / "atrasos-cancelamentos_2026-09_anexo-i@20261101.csv"
+    )
+    anexo.write_bytes(b"\n".join(anexo.read_bytes().splitlines()[:3]) + b"\n")
+
+    res = converter.convert(raw, lake)
+
+    assert len(res.errors) >= 1
+    assert any(
+        "atrasos-cancelamentos_202609_anexo-i" in e
+        and "atrasos-cancelamentos_2026-09_anexo-i.parquet" in e
+        for e in res.errors
+    )
+    antigo = lake / SOURCE_ID / DATASET / "ano=2026/mes=09"
+    assert (antigo / "atrasos-cancelamentos_2026-09_anexo-i.parquet").exists()
+
+
+def test_sha_calculado_uma_vez_por_arquivo(
+    raw: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    chamadas: list[str] = []
+    original = lake_mod.sha256_file
+    monkeypatch.setattr(
+        lake_mod,
+        "sha256_file",
+        lambda p, *a, **k: chamadas.append(p.name) or original(p, *a, **k),
+    )
+    import quantilica.analytics.lake as analytics_lake
+
+    analytics_calls: list[str] = []
+    original_a = analytics_lake.sha256_file
+    monkeypatch.setattr(
+        analytics_lake,
+        "sha256_file",
+        lambda p, *a, **k: (
+            analytics_calls.append(Path(p).name) or original_a(p, *a, **k)
+        ),
+    )
+
+    converter.convert(raw, tmp_path / "lake")
+
+    # O analytics não recalcula: recebe o sha256 no GroupMember.
+    anexos = [c for c in analytics_calls if "atrasos-cancelamentos_" in c]
+    assert anexos == []
+    assert all(chamadas.count(n) == 1 for n in set(chamadas))
 
 
 def test_inventario_da_copia_sem_sufixo_e_gemeo(raw: Path) -> None:
