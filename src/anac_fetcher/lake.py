@@ -5,22 +5,34 @@ Each raw file lands in
 Files with monthly partition (e.g. VRA, Dados Estatísticos) are partitioned by
 ``ano=/mes=``; annual files by ``ano=``; and static datasets (e.g. RAB, Aeródromos)
 are stored unpartitioned. Data contracts are validated when available.
+
+The groups in ``_GRUPOS_POR_TABELA`` (``atrasos-cancelamentos``) have several raw
+files per month, one per table (the three annexes, each with its own columns).
+Each table is written by ``LakeWriter.write_group`` as
+``<group>_<AAAAMM>[_<anexo>].parquet``, with ``_origem`` and the footer
+``quantilica.members``. Annexes are never merged with each other (different
+schemas and granularity). The file with no annex suffix that old versions of the
+fetcher wrote is byte for byte a copy of one annex: it is that annex's twin, not a
+table, and the old Parquet of the copy is removed when the annex is converted.
 """
 
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from contextlib import ExitStack
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 try:
     import polars as pl
-    from quantilica.analytics.lake import LakeError, LakeWriter
+    from quantilica.analytics.lake import GroupMember, LakeError, LakeWriter
+    from quantilica.core.files import sha256_file
     from quantilica.core.lake import (
         DatasetDescriptor,
         composite_file_key,
+        file_key,
         partition_types_for,
     )
 except ImportError as exc:
@@ -45,6 +57,14 @@ if TYPE_CHECKING:  # só tipagem: o core publicado antes do contrato não tem Pl
     from quantilica.core.lake import Planned
 
 SOURCE_ID = "anac"
+
+# Grupos com vários arquivos brutos por mês, um por tabela (anexo): cada tabela
+# vira um Parquet por mês, por ``write_group``. Versões gravadas nos membros do
+# rodapé: suba CONTRACT_VERSION se a normalização das colunas mudar e
+# CONVERTER_VERSION se mudar a leitura; o mês é reconvertido.
+_GRUPOS_POR_TABELA = frozenset({"atrasos-cancelamentos"})
+CONTRACT_VERSION = 1
+CONVERTER_VERSION = "1"
 
 _YM = re.compile(r"^(?P<ano>\d{4})-(?P<mes>\d{2})$")
 # A ANAC publica o mesmo conteúdo em vários formatos ("...-csv@data.csv",
@@ -187,6 +207,49 @@ class Routed:
     dataset_id: str
     partition_keys: list[str]
     partition_values: dict[str, str]
+    # Arquivos byte a byte iguais a este, que não são tabela própria (ver
+    # :func:`fold_twins`): o conversor não os lê e o inventário os dá como gêmeos.
+    twins: tuple[Path, ...] = ()
+
+
+def fold_twins(routed: list[Routed]) -> tuple[list[Routed], list[Path]]:
+    """Separa os arquivos sem sufixo de anexo que copiam um anexo da mesma partição.
+
+    Versões antigas do fetcher gravavam os anexos de uma partição no mesmo nome
+    (``<base>_<AAAA-MM>``, sem o slug): o que ficou é o último baixado, byte a
+    byte igual a um dos anexos (conferido pelo sha256 dos manifests de 284 meses).
+    Convertê-lo duplica as linhas desse anexo no lake. Um arquivo sem sufixo cujo
+    sha256 não é o de nenhum anexo continua sendo uma tabela.
+
+    Returns:
+        Os itens que ficam (cada anexo com seus ``twins``) e os gêmeos.
+    """
+    by_partition: dict[tuple[str, tuple], list[Routed]] = defaultdict(list)
+    for item in routed:
+        key = (item.dataset_id, tuple(item.partition_values.items()))
+        by_partition[key].append(item)
+
+    kept: list[Routed] = []
+    twins: list[Path] = []
+    for items in by_partition.values():
+        annexes = [i for i in items if parse_filename(i.path)["slug"]]
+        bare = [i for i in items if not parse_filename(i.path)["slug"]]
+        if not annexes or not bare:
+            kept.extend(items)
+            continue
+        owners: dict[str, Routed] = {}
+        for item in sorted(annexes, key=lambda i: i.path):
+            owners.setdefault(sha256_file(item.path), item)
+        folded: dict[Path, list[Path]] = defaultdict(list)
+        for item in bare:
+            owner = owners.get(sha256_file(item.path))
+            if owner is None:
+                kept.append(item)
+            else:
+                folded[owner.path].append(item.path)
+                twins.append(item.path)
+        kept.extend(replace(i, twins=tuple(folded.get(i.path, ()))) for i in annexes)
+    return sorted(kept, key=lambda i: i.path), sorted(twins)
 
 
 def route_group(
@@ -200,7 +263,8 @@ def route_group(
     (:func:`dataset_for_granularity`). Os arquivos descartados voltam com o
     motivo do inventário: ``"gemeo"`` (mesmo conteúdo em outro formato),
     ``"nao_tabular"`` (formato que o leitor não abre) ou ``"superado"``
-    (versão anterior do mesmo formato).
+    (versão anterior do mesmo formato). Nos grupos por tabela, o arquivo sem
+    sufixo de anexo que copia um anexo também volta como ``"gemeo"``.
     """
     preferred = spec_for(group).get("formatos")
     files = raw_files(src_group_dir)
@@ -219,10 +283,15 @@ def route_group(
         for path, keys, vals in resolved
     ]
 
+    folded: list[Path] = []
+    if group in _GRUPOS_POR_TABELA:
+        routed, folded = fold_twins(routed)
+
     routed_paths = {item.path for item in routed}
-    ignored: list[tuple[Path, str]] = []
+    folded_paths = set(folded)
+    ignored: list[tuple[Path, str]] = [(path, "gemeo") for path in folded]
     for path in files:
-        if path in routed_paths:
+        if path in routed_paths or path in folded_paths:
             continue
         if not is_tabular(path):
             ignored.append((path, "nao_tabular"))
@@ -233,6 +302,26 @@ def route_group(
         )
         ignored.append((path, reason))
     return routed, ignored
+
+
+def _read_table(
+    group: str, spec: dict[str, Any], raw_file: Path, part_keys: list[str]
+) -> pl.DataFrame:
+    """O arquivo bruto de uma tabela como DataFrame pronto para o Parquet.
+
+    Os mesmos passos de :meth:`LakeConverter.convert` para os outros grupos:
+    leitura, tipos, contrato e retirada das colunas de partição.
+    """
+    with ExitStack() as stack:
+        source_path = raw_file
+        if raw_file.suffix.lower() in (".zip", ".7z"):
+            source_path = stack.enter_context(extracted_data(raw_file))
+        data = read_file(source_path, spec)
+        if isinstance(data, dict):
+            raise LakeError(f"{raw_file.name}: várias abas não cabem numa tabela só")
+        norm = normalize_dtypes(data, spec)
+        norm = _apply_contract(group, norm, raw_file.name)
+        return drop_partition_columns(norm, part_keys)
 
 
 class LakeConverter:
@@ -292,6 +381,10 @@ class LakeConverter:
 
             spec = spec_for(group)
             routed, _ = route_group(group, src_group_dir)
+
+            if group in _GRUPOS_POR_TABELA:
+                self._convert_tables(group, spec, routed, lake_dir, force, result)
+                continue
 
             for item in routed:
                 raw_file = item.path
@@ -368,6 +461,87 @@ class LakeConverter:
                         continue
 
         return result
+
+    @staticmethod
+    def _convert_tables(
+        group: str,
+        spec: dict[str, Any],
+        routed: list[Routed],
+        lake_dir: Path,
+        force: bool,
+        result: ConvertResult,
+    ) -> None:
+        """Escreve cada tabela (anexo) do mês como um grupo de ``write_group``.
+
+        Um anexo é um membro só: o grupo existe para ter o arquivo do mês com
+        proveniência (``_origem``, rodapé) e para trocar, na migração, os
+        Parquets antigos (o do próprio anexo e o da cópia sem sufixo) pelo novo.
+        """
+        writers: dict[str, LakeWriter] = {}
+        for item in routed:
+            raw_file = item.path
+            writer_key = f"{item.dataset_id}:" + ",".join(item.partition_keys)
+            if writer_key not in writers:
+                writers[writer_key] = LakeWriter(
+                    lake_dir / SOURCE_ID / item.dataset_id,
+                    DatasetDescriptor(
+                        source_id=SOURCE_ID,
+                        dataset_id=item.dataset_id,
+                        alias=item.dataset_id,
+                        partition_keys=item.partition_keys,
+                        partition_types=partition_types_for(item.partition_keys),
+                    ),
+                    force=force,
+                )
+            writer = writers[writer_key]
+
+            meta = parse_filename(raw_file)
+            period = "".join(item.partition_values.values())
+            slug = meta["slug"]
+            group_key = "_".join(
+                part for part in (item.dataset_id, period, slug) if part
+            )
+            # Parquets de um por arquivo bruto que este grupo substitui: o do
+            # anexo, o de cada cópia e o do nome sem sufixo, que as versões
+            # antigas gravavam. Só saem se o sha256 de origem for o do anexo.
+            replaces = {file_key(raw_file), *(file_key(t) for t in item.twins)}
+            if slug and meta["year"] and meta["part"]:
+                replaces.add(f"{meta['base_id']}_{meta['year']}-{meta['part']:02d}")
+            # Só os que existem: o writer avisa no log de cada chave sem Parquet.
+            folder = writer.dataset_dir.joinpath(
+                *(f"{k}={v}" for k, v in item.partition_values.items())
+            )
+            replaces = {k for k in replaces if (folder / f"{k}.parquet").is_file()}
+
+            def frame(raw_file: Path = raw_file, item: Routed = item):
+                return _read_table(group, spec, raw_file, item.partition_keys)
+
+            member = GroupMember(raw_file, frame)
+            options = {
+                "partitions": item.partition_values,
+                "contract_version": CONTRACT_VERSION,
+                "converter_version": CONVERTER_VERSION,
+            }
+            try:
+                # Sem decodificar nada quando o mês já está no lake.
+                current = writer.is_current_group(group_key, [member], **options)
+                written = writer.write_group(
+                    group_key,
+                    [member],
+                    converter=f"anac-fetcher {__version__}",
+                    replaces=sorted(replaces),
+                    **options,
+                )
+            except Exception as exc:
+                message = str(exc).strip()
+                first_line = message.splitlines()[0] if message else repr(exc)
+                result.errors.append(f"{raw_file.name}: {first_line}")
+                continue
+            if current or written.status == "skipped":
+                result.skipped += 1
+            else:
+                result.converted += len(written.written)
+                result.skipped += len(written.kept)
 
     def inventory(self, input_dir: Path) -> list[Planned]:
         """Um ``Planned`` por arquivo bruto: o dataset ou o motivo de ignorar.
