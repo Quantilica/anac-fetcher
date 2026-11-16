@@ -53,7 +53,7 @@ Percentuais mensais de cancelamentos e de atrasos (acima de 30 e de 60 minutos) 
 ## Origem e coleta
 
 - O fetcher baixa, para cada mês, os arquivos `Anexo I`, `Anexo II` e `Anexo III` de `Voos e operações aéreas/Percentuais de atrasos e cancelamentos/<ano>/<mês>/`; o catálogo cobre 2000-01 em diante e pula 2014-06 e 2014-07, que a fonte não publicou (Copa do Mundo, Resolução 316/2014).
-- Cada anexo vira um arquivo Parquet próprio na partição do mês, com sufixo `anexo-i`, `anexo-ii` ou `anexo-iii`; os três ficam no mesmo dataset.
+- Cada anexo vira um arquivo Parquet próprio na partição do mês, com sufixo `anexo-i`, `anexo-ii` ou `anexo-iii`; os três ficam no mesmo dataset. Os anexos não são juntados: têm esquemas e granularidades diferentes. O arquivo bruto sem sufixo de anexo que versões antigas do fetcher gravaram é cópia exata de um dos anexos e não é convertido.
 - Conferido em 2026-11-15: o Anexo I tem 10 colunas; os Anexos II e III têm 9 e 8 colunas em 2000-01, 2017-01, 2019-03 e 2024-10 (sem `N_Voo` e, no III, sem `Empresa_Aerea`), mas 10 colunas nos três anexos em 2022-08.
 - A fonte descreve os metadados do Anexo I (Resolução ANAC 218/2012 e Portaria SAS 3.838/2017).
 
@@ -84,13 +84,13 @@ As descrições vêm da página de metadados do conjunto no portal da ANAC (10 d
 
 ## No lake
 
-- Dataset `anac/atrasos-cancelamentos`, particionado por `ano`, `mes`; um Parquet por arquivo de origem.
+- Dataset `anac/atrasos-cancelamentos`, particionado por `ano`, `mes`; um Parquet por anexo e mês (`atrasos-cancelamentos_AAAAMM_anexo-i.parquet`, `..._anexo-ii.parquet`, `..._anexo-iii.parquet`), com a coluna `_origem` (arquivo bruto de origem) e, no rodapé, o sha256 e o número de linhas do arquivo.
 - O conversor escolhe um arquivo por conteúdo (CSV antes de JSON antes de XLS, salvo grupos que preferem JSON) e lê todas as colunas como texto, exceto onde o JSON traz números.
 - Colunas que repetem a partição (`ano`, `mes`) saem do Parquet; o valor fica no caminho.
 
 ## Cuidados de uso
 
-- **Três tabelas em um dataset.** Os anexos têm granularidades diferentes (Anexo I por voo e trecho; II por empresa e trecho; III por trecho); não some linhas entre anexos. Os arquivos Parquet se distinguem pelo sufixo `anexo-*` no nome.
+- **Três tabelas em um dataset.** Os anexos têm granularidades diferentes (Anexo I por voo e trecho; II por empresa e trecho; III por trecho); não some linhas entre anexos. Os arquivos Parquet se distinguem pelo sufixo `anexo-*` no nome e pela coluna `_origem`.
 - **Esquema varia por anexo e mês.** Anexos II e III não têm `N_Voo`/`Empresa_Aerea` na maioria dos meses, e em 2022-08 os três têm as 10 colunas; ao ler com `union_by_name`, as colunas ausentes ficam nulas.
 - **Nome de coluna com espaço no fim.** A coluna `Aeroporto_Origem_Nome_UF_Pais` tem um espaço no fim do nome na fonte, preservado no Parquet. O esquema de referência (`atrasos-cancelamentos.schema.json`) e esta tabela a registram sem o espaço, porque a verificação da documentação aplica `strip` aos nomes; no DuckDB, cite o nome com o espaço.
 - **Texto.** Os percentuais e as quantidades são texto; converta antes de calcular.

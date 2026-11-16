@@ -7,6 +7,18 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Alterado
+- **Quebra de layout no lake: `atrasos-cancelamentos` passa a um Parquet por anexo e mês, com proveniência.** Os anexos (I, II e III) têm esquemas e granularidades diferentes (10, 9 e 8 colunas na maioria dos meses), então não são juntados: o agrupamento é por tabela. Em `anac/atrasos-cancelamentos/ano=AAAA/mes=MM/`:
+  - antes: `atrasos-cancelamentos_AAAA-MM_anexo-i.parquet`, `..._anexo-ii.parquet`, `..._anexo-iii.parquet` e, nos meses baixados por versões antigas, também `atrasos-cancelamentos_AAAA-MM.parquet` (4 arquivos por mês);
+  - depois: `atrasos-cancelamentos_AAAAMM_anexo-i.parquet`, `..._anexo-ii.parquet`, `..._anexo-iii.parquet` (3 por mês), cada um com a coluna `_origem` (o arquivo bruto de origem) e o rodapé `quantilica.members` (sha256 e linhas).
+  - As pastas `ano=`/`mes=` não mudam. Na reconversão, o Parquet antigo do anexo e o da cópia sem sufixo saem sozinhos depois que o novo é publicado (só se o sha256 de origem for o do anexo); o que sobrar com o nome antigo é resíduo e pode ser apagado.
+- O arquivo bruto sem sufixo de anexo (`atrasos-cancelamentos_AAAA-MM@data.csv`), gravado por versões antigas do fetcher, é byte a byte igual a um dos anexos (conferido pelo sha256 dos manifests de 284 meses). Deixa de ser convertido: o lake antigo guardava as linhas desse anexo duas vezes. O inventário o devolve como `gemeo`. Um arquivo sem sufixo cujo sha256 não é o de nenhum anexo da partição continua sendo uma tabela.
+- Um anexo novo ou alterado reescreve só o Parquet do seu mês; os que já estão no lake são pulados sem ler o bruto. `contract_version` (1) e `converter_version` ("1") ficam no rodapé: mudar a normalização ou a leitura e subir uma delas reconverte.
+- Exige `quantilica-analytics>=0.12.0` no extra `analysis` (`write_group`). Os outros grupos continuam com um Parquet por arquivo bruto.
+- Documentação dos dados de `atrasos-cancelamentos`: seção "No lake" e cuidados de uso.
+
+### Adicionado
+- Testes de equivalência do agrupamento: o conteúdo do lake por arquivo de origem (linhas, colunas e tipos, linhas ordenadas) é igual ao do conversor anterior (`tests/golden/lake_antes_do_agrupamento.json`, gerado antes da mudança), mais segunda execução sem reescrita, migração do layout antigo sem linhas duplicadas, inventário e `lake_audit` limpo.
 
 ## [0.9.1] - 2026-11-15
 ### Adicionado
