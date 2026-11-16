@@ -1,0 +1,973 @@
+{
+ "arquivos_por_mes": {
+  "atrasos-cancelamentos/2026/08": 1,
+  "atrasos-cancelamentos/2026/09": 4,
+  "atrasos-cancelamentos/2026/10": 4,
+  "rab": 1,
+  "vra/2026/10": 1
+ },
+ "lake": {
+  "atrasos-cancelamentos/2026/08/atrasos-cancelamentos_2026-08_anexo-iii": {
+   "colunas": [
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-08-0",
+     "Aeropo-iii-2026-08-0",
+     "Aeropo-iii-2026-08-0",
+     "AZUL LINHAS AÉREAS",
+     "5,0005",
+     "6,0006",
+     "7,0007"
+    ],
+    [
+     "Aeropo-iii-2026-08-1",
+     "Aeropo-iii-2026-08-1",
+     "Aeropo-iii-2026-08-1",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-iii-2026-08-1",
+     "12,0018",
+     "13,0019",
+     "14,0020"
+    ],
+    [
+     "Aeropo-iii-2026-08-2",
+     "Aeropo-iii-2026-08-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-08-2",
+     "Etapas-iii-2026-08-2",
+     "19,0031",
+     "20,0032",
+     "21,0033"
+    ]
+   ],
+   "linhas": 3
+  },
+  "atrasos-cancelamentos/2026/09/atrasos-cancelamentos_2026-09": {
+   "colunas": [
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-0",
+     "Aeropo-iii-2026-09-0",
+     "Aeropo-iii-2026-09-0",
+     "AZUL LINHAS AÉREAS",
+     "5,0005",
+     "6,0006",
+     "7,0007"
+    ],
+    [
+     "Aeropo-iii-2026-09-1",
+     "Aeropo-iii-2026-09-1",
+     "Aeropo-iii-2026-09-1",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-iii-2026-09-1",
+     "12,0018",
+     "13,0019",
+     "14,0020"
+    ],
+    [
+     "Aeropo-iii-2026-09-2",
+     "Aeropo-iii-2026-09-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-2",
+     "Etapas-iii-2026-09-2",
+     "19,0031",
+     "20,0032",
+     "21,0033"
+    ],
+    [
+     "Aeropo-iii-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-3",
+     "Aeropo-iii-2026-09-3",
+     "Etapas-iii-2026-09-3",
+     "26,0044",
+     "27,0045",
+     "28,0046"
+    ]
+   ],
+   "linhas": 4
+  },
+  "atrasos-cancelamentos/2026/09/atrasos-cancelamentos_2026-09_anexo-i": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "N_Voo",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-09-0",
+     "Aeropo-i-2026-09-0",
+     "Aeropo-i-2026-09-0",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-0",
+     "Etapas-i-2026-09-0",
+     "7,0007",
+     "8,0008",
+     "9,0009"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-09-4",
+     "Aeropo-i-2026-09-4",
+     "Aeropo-i-2026-09-4",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-4",
+     "Etapas-i-2026-09-4",
+     "35,0059",
+     "36,0060",
+     "37,0061"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-09-8",
+     "Aeropo-i-2026-09-8",
+     "Aeropo-i-2026-09-8",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-8",
+     "Etapas-i-2026-09-8",
+     "63,0111",
+     "64,0112",
+     "65,0113"
+    ],
+    [
+     "Empres-i-2026-09-1",
+     "N_Voo-i-2026-09-1",
+     "Aeropo-i-2026-09-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-1",
+     "Aeropo-i-2026-09-1",
+     "Etapas-i-2026-09-1",
+     "14,0020",
+     "15,0021",
+     "16,0022"
+    ],
+    [
+     "Empres-i-2026-09-2",
+     "N_Voo-i-2026-09-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-2",
+     "Aeropo-i-2026-09-2",
+     "Aeropo-i-2026-09-2",
+     "AZUL LINHAS AÉREAS",
+     "21,0033",
+     "22,0034",
+     "23,0035"
+    ],
+    [
+     "Empres-i-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-3",
+     "Aeropo-i-2026-09-3",
+     "Aeropo-i-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-i-2026-09-3",
+     "28,0046",
+     "29,0047",
+     "30,0048"
+    ],
+    [
+     "Empres-i-2026-09-5",
+     "N_Voo-i-2026-09-5",
+     "Aeropo-i-2026-09-5",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-5",
+     "Aeropo-i-2026-09-5",
+     "Etapas-i-2026-09-5",
+     "42,0072",
+     "43,0073",
+     "44,0074"
+    ],
+    [
+     "Empres-i-2026-09-6",
+     "N_Voo-i-2026-09-6",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-6",
+     "Aeropo-i-2026-09-6",
+     "Aeropo-i-2026-09-6",
+     "AZUL LINHAS AÉREAS",
+     "49,0085",
+     "50,0086",
+     "51,0087"
+    ],
+    [
+     "Empres-i-2026-09-7",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-09-7",
+     "Aeropo-i-2026-09-7",
+     "Aeropo-i-2026-09-7",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-i-2026-09-7",
+     "56,0098",
+     "57,0099",
+     "58,0100"
+    ]
+   ],
+   "linhas": 9
+  },
+  "atrasos-cancelamentos/2026/09/atrasos-cancelamentos_2026-09_anexo-ii": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-09-0",
+     "Aeropo-ii-2026-09-0",
+     "Aeropo-ii-2026-09-0",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-ii-2026-09-0",
+     "6,0006",
+     "7,0007",
+     "8,0008"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-09-4",
+     "Aeropo-ii-2026-09-4",
+     "Aeropo-ii-2026-09-4",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-ii-2026-09-4",
+     "34,0058",
+     "35,0059",
+     "36,0060"
+    ],
+    [
+     "Empres-ii-2026-09-1",
+     "Aeropo-ii-2026-09-1",
+     "Aeropo-ii-2026-09-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-09-1",
+     "Etapas-ii-2026-09-1",
+     "13,0019",
+     "14,0020",
+     "15,0021"
+    ],
+    [
+     "Empres-ii-2026-09-2",
+     "Aeropo-ii-2026-09-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-09-2",
+     "Aeropo-ii-2026-09-2",
+     "Etapas-ii-2026-09-2",
+     "20,0032",
+     "21,0033",
+     "22,0034"
+    ],
+    [
+     "Empres-ii-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-09-3",
+     "Aeropo-ii-2026-09-3",
+     "Aeropo-ii-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "27,0045",
+     "28,0046",
+     "29,0047"
+    ]
+   ],
+   "linhas": 5
+  },
+  "atrasos-cancelamentos/2026/09/atrasos-cancelamentos_2026-09_anexo-iii": {
+   "colunas": [
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-0",
+     "Aeropo-iii-2026-09-0",
+     "Aeropo-iii-2026-09-0",
+     "AZUL LINHAS AÉREAS",
+     "5,0005",
+     "6,0006",
+     "7,0007"
+    ],
+    [
+     "Aeropo-iii-2026-09-1",
+     "Aeropo-iii-2026-09-1",
+     "Aeropo-iii-2026-09-1",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-iii-2026-09-1",
+     "12,0018",
+     "13,0019",
+     "14,0020"
+    ],
+    [
+     "Aeropo-iii-2026-09-2",
+     "Aeropo-iii-2026-09-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-2",
+     "Etapas-iii-2026-09-2",
+     "19,0031",
+     "20,0032",
+     "21,0033"
+    ],
+    [
+     "Aeropo-iii-2026-09-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-09-3",
+     "Aeropo-iii-2026-09-3",
+     "Etapas-iii-2026-09-3",
+     "26,0044",
+     "27,0045",
+     "28,0046"
+    ]
+   ],
+   "linhas": 4
+  },
+  "atrasos-cancelamentos/2026/10/atrasos-cancelamentos_2026-10": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "N_Voo",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-10-0",
+     "Aeropo-i-2026-10-0",
+     "Aeropo-i-2026-10-0",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-0",
+     "Etapas-i-2026-10-0",
+     "7,0007",
+     "8,0008",
+     "9,0009"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-10-4",
+     "Aeropo-i-2026-10-4",
+     "Aeropo-i-2026-10-4",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-4",
+     "Etapas-i-2026-10-4",
+     "35,0059",
+     "36,0060",
+     "37,0061"
+    ],
+    [
+     "Empres-i-2026-10-1",
+     "N_Voo-i-2026-10-1",
+     "Aeropo-i-2026-10-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-1",
+     "Aeropo-i-2026-10-1",
+     "Etapas-i-2026-10-1",
+     "14,0020",
+     "15,0021",
+     "16,0022"
+    ],
+    [
+     "Empres-i-2026-10-2",
+     "N_Voo-i-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-2",
+     "Aeropo-i-2026-10-2",
+     "Aeropo-i-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "21,0033",
+     "22,0034",
+     "23,0035"
+    ],
+    [
+     "Empres-i-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-3",
+     "Aeropo-i-2026-10-3",
+     "Aeropo-i-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-i-2026-10-3",
+     "28,0046",
+     "29,0047",
+     "30,0048"
+    ],
+    [
+     "Empres-i-2026-10-5",
+     "N_Voo-i-2026-10-5",
+     "Aeropo-i-2026-10-5",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-5",
+     "Aeropo-i-2026-10-5",
+     "Etapas-i-2026-10-5",
+     "42,0072",
+     "43,0073",
+     "44,0074"
+    ]
+   ],
+   "linhas": 6
+  },
+  "atrasos-cancelamentos/2026/10/atrasos-cancelamentos_2026-10_anexo-i": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "N_Voo",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-10-0",
+     "Aeropo-i-2026-10-0",
+     "Aeropo-i-2026-10-0",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-0",
+     "Etapas-i-2026-10-0",
+     "7,0007",
+     "8,0008",
+     "9,0009"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-i-2026-10-4",
+     "Aeropo-i-2026-10-4",
+     "Aeropo-i-2026-10-4",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-4",
+     "Etapas-i-2026-10-4",
+     "35,0059",
+     "36,0060",
+     "37,0061"
+    ],
+    [
+     "Empres-i-2026-10-1",
+     "N_Voo-i-2026-10-1",
+     "Aeropo-i-2026-10-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-1",
+     "Aeropo-i-2026-10-1",
+     "Etapas-i-2026-10-1",
+     "14,0020",
+     "15,0021",
+     "16,0022"
+    ],
+    [
+     "Empres-i-2026-10-2",
+     "N_Voo-i-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-2",
+     "Aeropo-i-2026-10-2",
+     "Aeropo-i-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "21,0033",
+     "22,0034",
+     "23,0035"
+    ],
+    [
+     "Empres-i-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-3",
+     "Aeropo-i-2026-10-3",
+     "Aeropo-i-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-i-2026-10-3",
+     "28,0046",
+     "29,0047",
+     "30,0048"
+    ],
+    [
+     "Empres-i-2026-10-5",
+     "N_Voo-i-2026-10-5",
+     "Aeropo-i-2026-10-5",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-i-2026-10-5",
+     "Aeropo-i-2026-10-5",
+     "Etapas-i-2026-10-5",
+     "42,0072",
+     "43,0073",
+     "44,0074"
+    ]
+   ],
+   "linhas": 6
+  },
+  "atrasos-cancelamentos/2026/10/atrasos-cancelamentos_2026-10_anexo-ii": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "N_Voo",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-ii-2026-10-0",
+     "Aeropo-ii-2026-10-0",
+     "Aeropo-ii-2026-10-0",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-10-0",
+     "Etapas-ii-2026-10-0",
+     "7,0007",
+     "8,0008",
+     "9,0009"
+    ],
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-ii-2026-10-4",
+     "Aeropo-ii-2026-10-4",
+     "Aeropo-ii-2026-10-4",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-10-4",
+     "Etapas-ii-2026-10-4",
+     "35,0059",
+     "36,0060",
+     "37,0061"
+    ],
+    [
+     "Empres-ii-2026-10-1",
+     "N_Voo-ii-2026-10-1",
+     "Aeropo-ii-2026-10-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-10-1",
+     "Aeropo-ii-2026-10-1",
+     "Etapas-ii-2026-10-1",
+     "14,0020",
+     "15,0021",
+     "16,0022"
+    ],
+    [
+     "Empres-ii-2026-10-2",
+     "N_Voo-ii-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-10-2",
+     "Aeropo-ii-2026-10-2",
+     "Aeropo-ii-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "21,0033",
+     "22,0034",
+     "23,0035"
+    ],
+    [
+     "Empres-ii-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-ii-2026-10-3",
+     "Aeropo-ii-2026-10-3",
+     "Aeropo-ii-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-ii-2026-10-3",
+     "28,0046",
+     "29,0047",
+     "30,0048"
+    ]
+   ],
+   "linhas": 5
+  },
+  "atrasos-cancelamentos/2026/10/atrasos-cancelamentos_2026-10_anexo-iii": {
+   "colunas": [
+    [
+     "Empresa_Aerea",
+     "String"
+    ],
+    [
+     "N_Voo",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Origem_Nome_UF_Pais ",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Designador_OACI",
+     "String"
+    ],
+    [
+     "Aeroporto_Destino_Nome_UF_Pais",
+     "String"
+    ],
+    [
+     "Etapas_Previstas",
+     "String"
+    ],
+    [
+     "Percentuais_de_Cancelamentos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_30_minutos",
+     "String"
+    ],
+    [
+     "Percentuais_de_Atrasos_superiores_a_60_minutos",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL LINHAS AÉREAS",
+     "N_Voo-iii-2026-10-0",
+     "Aeropo-iii-2026-10-0",
+     "Aeropo-iii-2026-10-0",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-10-0",
+     "Etapas-iii-2026-10-0",
+     "7,0007",
+     "8,0008",
+     "9,0009"
+    ],
+    [
+     "Empres-iii-2026-10-1",
+     "N_Voo-iii-2026-10-1",
+     "Aeropo-iii-2026-10-1",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-10-1",
+     "Aeropo-iii-2026-10-1",
+     "Etapas-iii-2026-10-1",
+     "14,0020",
+     "15,0021",
+     "16,0022"
+    ],
+    [
+     "Empres-iii-2026-10-2",
+     "N_Voo-iii-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-10-2",
+     "Aeropo-iii-2026-10-2",
+     "Aeropo-iii-2026-10-2",
+     "AZUL LINHAS AÉREAS",
+     "21,0033",
+     "22,0034",
+     "23,0035"
+    ],
+    [
+     "Empres-iii-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Aeropo-iii-2026-10-3",
+     "Aeropo-iii-2026-10-3",
+     "Aeropo-iii-2026-10-3",
+     "AZUL LINHAS AÉREAS",
+     "Etapas-iii-2026-10-3",
+     "28,0046",
+     "29,0047",
+     "30,0048"
+    ]
+   ],
+   "linhas": 4
+  },
+  "rab//rab_dados": {
+   "colunas": [
+    [
+     "Marca",
+     "String"
+    ],
+    [
+     "Modelo",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "PT-ABC",
+     "PA-28"
+    ]
+   ],
+   "linhas": 1
+  },
+  "vra/2026/10/vra_2026-10": {
+   "colunas": [
+    [
+     "Empresa",
+     "String"
+    ],
+    [
+     "Numero do Voo",
+     "String"
+    ]
+   ],
+   "conteudo": [
+    [
+     "AZUL",
+     "99"
+    ],
+    [
+     "LATAM",
+     "1234"
+    ]
+   ],
+   "linhas": 2
+  }
+ }
+}
