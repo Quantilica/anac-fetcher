@@ -423,7 +423,12 @@ class LakeConverter:
                 continue
 
             spec = spec_for(group)
-            routed, _ = route_group(group, src_group_dir)
+            try:
+                routed, _ = route_group(group, src_group_dir)
+            except OSError as exc:
+                # o roteamento hasheia os arquivos sem sufixo de anexo (fold_twins)
+                result.errors.append(f"{src_group_dir.name}: {exc}")
+                continue
 
             if group in _GRUPOS_POR_TABELA:
                 self._convert_tables(group, spec, routed, lake_dir, force, result)
@@ -453,7 +458,14 @@ class LakeConverter:
                 # Em dia no lake: nem extrai o ZIP/7z nem lê o arquivo (o sha256
                 # vem do sidecar). Planilha de várias abas grava uma chave por
                 # aba, então nunca bate aqui e segue para a leitura.
-                if writer.is_current(raw_file, partitions=part_vals):
+                try:
+                    em_dia = writer.is_current(raw_file, partitions=part_vals)
+                except Exception as exc:  # noqa: BLE001
+                    # sha256 ou rodapé ilegível (E/S de montagem de rede): o caminho
+                    # completo tenta ler e reporta o erro do arquivo.
+                    logger.debug("%s: conferência no lake falhou (%s)", raw_file, exc)
+                    em_dia = False
+                if em_dia:
                     result.skipped += 1
                     continue
 
@@ -559,7 +571,11 @@ class LakeConverter:
             folder = writer.dataset_dir.joinpath(
                 *(f"{k}={v}" for k, v in item.partition_values.items())
             )
-            digest = item.sha256 or sha256_file(raw_file)
+            try:
+                digest = item.sha256 or sha256_file(raw_file)
+            except OSError as exc:
+                result.errors.append(f"{raw_file.name}: {exc}")
+                continue
             if slug and meta["year"] and meta["part"]:
                 # O Parquet sem sufixo de um bruto que já saiu da visão: este anexo
                 # o reivindica se, e só se, a origem dele for este arquivo.
