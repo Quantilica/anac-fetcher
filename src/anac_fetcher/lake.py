@@ -34,8 +34,8 @@ try:
         GroupMember,
         LakeError,
         LakeWriter,
+        sha256_file,
     )
-    from quantilica.core.files import sha256_file
     from quantilica.core.lake import (
         DatasetDescriptor,
         composite_file_key,
@@ -449,6 +449,13 @@ class LakeConverter:
                         force=force,
                     )
                 writer = writers[writer_key]
+
+                # Em dia no lake: nem extrai o ZIP/7z nem lê o arquivo (o sha256
+                # vem do sidecar). Planilha de várias abas grava uma chave por
+                # aba, então nunca bate aqui e segue para a leitura.
+                if writer.is_current(raw_file, partitions=part_vals):
+                    result.skipped += 1
+                    continue
 
                 # A pasta de extração (a raiz, subpastas incluídas) some ao
                 # sair do ``with``, em sucesso e em erro.
