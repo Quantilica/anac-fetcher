@@ -5,13 +5,15 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
-## [Não lançado]
+## [0.10.1] - 2026-11-19
 
 ### Alterado
+
 - **Build do lake sem mudança não lê o bruto.** Um arquivo (inclusive ZIP/7z) que já está no lake com o mesmo sha256 é pulado antes de ser extraído ou lido, e o sha256 vem do sidecar `.manifest.json` (`quantilica.analytics.lake.sha256_file`) em vez de uma leitura completa; vale também para os anexos de `atrasos-cancelamentos`. Planilha de várias abas, que grava uma chave por aba, ainda é lida para saber as abas.
 - Piso do `quantilica-analytics` em 0.14.0 (sha256 pelo sidecar).
 
 ### Corrigido
+
 - A conferência de "já está no lake" (`is_current`) fica dentro do tratamento de erro: um erro de E/S ao calcular o sha256 do bruto (montagem de rede) não derruba mais o `convert`; o arquivo segue para o caminho completo, que reporta o erro dele. O mesmo vale para o sha256 dos anexos de `atrasos-cancelamentos` e para o roteamento do grupo (que hasheia os arquivos sem sufixo de anexo): viram erro de arquivo em `errors`.
 - CI e infraestrutura alinhados ao template (fetcher-template v0.2.1).
 
