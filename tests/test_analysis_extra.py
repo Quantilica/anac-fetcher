@@ -13,6 +13,7 @@ MODULES = [
 
 
 def test_analysis_extra_mensagem_acionavel():
+    salvos = {name: sys.modules.get(name) for name in MODULES}
     salvo_polars = sys.modules.get("polars")
     try:
         for module_name in MODULES:
@@ -28,7 +29,12 @@ def test_analysis_extra_mensagem_acionavel():
             sys.modules["polars"] = salvo_polars
         else:
             sys.modules.pop("polars", None)
+        # Devolve os módulos que os outros testes já importaram (reimportar cria
+        # cópias novas e o que foi importado antes passaria a olhar outro objeto).
         for module_name in MODULES:
             sys.modules.pop(module_name, None)
-        for module_name in MODULES:
-            importlib.import_module(module_name)
+        for module_name, modulo in salvos.items():
+            if modulo is not None:
+                sys.modules[module_name] = modulo
+            else:
+                importlib.import_module(module_name)

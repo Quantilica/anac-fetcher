@@ -3,7 +3,8 @@
 Contratos definidos a partir de amostras reais convertidas (2026-08-29) —
 schemas da ANAC são majoritariamente String; o contrato valida a presença do
 conjunto de colunas esperado (drift de schema) e aplica cast no `wrangling`
-(best-effort: falha loga warning sem abortar a conversão).
+(falha do contrato é erro do arquivo: ``ContractError`` no ``wrangling``, erro
+no ``ConvertResult`` do lake; o arquivo não é gravado sem cast).
 """
 
 try:

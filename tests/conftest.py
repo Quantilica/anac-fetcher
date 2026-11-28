@@ -43,3 +43,21 @@ def guarda_extracao_sem_residuo(
             "remova a raiz da extração.",
             pytrace=False,
         )
+
+
+@pytest.fixture(autouse=True)
+def sem_contratos(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Os testes de mecânica usam CSVs de poucas colunas, fora dos contratos.
+
+    O contrato é erro do arquivo; para não obrigar cada teste de convert/lake a
+    montar as dezenas de colunas reais, a suíte roda sem contratos, salvo nos
+    testes marcados ``contrato_real`` (``tests/test_contrato_erro.py``).
+    """
+    if request.node.get_closest_marker("contrato_real") is not None:
+        return
+    pytest.importorskip("anac_fetcher.wrangling")
+    from anac_fetcher import wrangling
+
+    monkeypatch.setattr(wrangling, "CONTRACTS", {})

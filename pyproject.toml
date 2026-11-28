@@ -84,6 +84,9 @@ url = "https://index.quantilica.com/simple/"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["-p", "no:cacheprovider"]
+markers = [
+    "contrato_real: roda com os DataContracts reais (a suíte os desliga por padrão)",
+]
 
 [tool.ruff]
 line-length = 88

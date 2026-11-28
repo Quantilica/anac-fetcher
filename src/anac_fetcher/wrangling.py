@@ -112,30 +112,51 @@ def _iter_group_files(input_dir: Path, group_dir: str) -> list[Path]:
     )
 
 
+class ContractError(ValueError):
+    """O arquivo não cumpre o ``DataContract`` do grupo (colunas ou tipos)."""
+
+
 def _apply_contract(
     group: str,
     data: pl.DataFrame,
     filename: str,
 ) -> pl.DataFrame:
-    """Aplica o DataContract do grupo (best-effort): valida e casta.
+    """Aplica o DataContract do grupo: valida e casta.
 
     Args:
         group (str): O id canônico do grupo.
         data (pl.DataFrame): O DataFrame normalizado.
-        filename (str): Nome do arquivo de origem (para o log).
+        filename (str): Nome do arquivo de origem (para a mensagem de erro).
 
     Returns:
-        pl.DataFrame: O DataFrame com o contrato aplicado (ou inalterado).
+        pl.DataFrame: O DataFrame com o contrato aplicado (ou inalterado, para
+        grupo sem contrato).
+
+    Raises:
+        ContractError: Se faltam colunas esperadas ou o contrato não valida/casta.
+            A mensagem traz as colunas esperadas e as encontradas; o arquivo não
+            é gravado sem cast.
     """
     contract = CONTRACTS.get(group)
     if contract is None:
         return data
+    expected = [f.name for f in contract.fields if f.required]
+    missing = [name for name in expected if name not in data.columns]
+    if missing:
+        raise ContractError(
+            f"{filename}: contrato {group} não cumprido, faltam "
+            f"{len(missing)} coluna(s): {missing}; colunas esperadas: "
+            f"{expected}; colunas encontradas: {list(data.columns)}"
+        )
     try:
         contract.validate(data)
         return contract.cast(data)
     except Exception as exc:
-        logger.warning("Contrato %s não aplicado em %s: %s", group, filename, exc)
-        return data
+        raise ContractError(
+            f"{filename}: contrato {group} não cumprido ({exc}); "
+            f"colunas esperadas: {expected}; colunas encontradas: "
+            f"{list(data.columns)}"
+        ) from exc
 
 
 def convert_one(
@@ -152,6 +173,10 @@ def convert_one(
 
     Returns:
         Path | list[Path]: O(s) Parquet(s) escrito(s), ou lista vazia se pulado.
+
+    Raises:
+        ContractError: Se o arquivo não cumpre o contrato do grupo (nada é
+            gravado para ele).
     """
     group_dir = _GROUP_DIRS[group]
     spec = spec_for(group)
@@ -212,15 +237,29 @@ def convert_group(groups: list[str], input_dir: Path, output_dir: Path) -> int:
 
     Returns:
         int: Número de arquivos Parquet escritos.
+
+    Raises:
+        ContractError: Ao fim, se algum arquivo não cumpriu o contrato do grupo
+            (os demais são convertidos antes); a mensagem lista cada arquivo.
     """
     total = 0
+    failures: list[str] = []
     for group in groups:
         if group not in _GROUP_DIRS:
             logger.warning("Grupo desconhecido (sem diretório): %s", group)
             continue
         for raw_file in _iter_group_files(input_dir, _GROUP_DIRS[group]):
-            written = convert_one(group, raw_file, output_dir)
+            try:
+                written = convert_one(group, raw_file, output_dir)
+            except ContractError as exc:
+                logger.error("%s", exc)
+                failures.append(str(exc))
+                continue
             total += len(written)
+    if failures:
+        raise ContractError(
+            f"{len(failures)} arquivo(s) fora do contrato: " + " | ".join(failures)
+        )
     return total
 
 
