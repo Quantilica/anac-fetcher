@@ -5,6 +5,20 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+
+- **Contrato de colunas que falha é erro do arquivo.** `_apply_contract` só avisava e o arquivo era gravado sem cast. Agora levanta `ContractError` (`wrangling.convert_one`; `convert_group` converte os demais e levanta no fim) e, no conversor do lake, vira erro do arquivo no `ConvertResult` (o host sai com 1), com as colunas esperadas e as encontradas na mensagem. O arquivo não é gravado.
+- **Leitura tolerante conta o que descarta.** O CSV é lido primeiro de forma estrita; só se uma linha tem mais campos que o cabeçalho ele é relido com `truncate_ragged_lines` (inclusive no recuo sem aspas), as linhas que perderam conteúdo (campo a mais não vazio; separador sobrando no fim da linha não conta) são contadas num segundo passo e registradas em WARNING com o arquivo. No recuo `ignore_errors` do NDJSON contam-se os valores trocados por nulo por tipo incompatível. Acima de 1% (`MAX_DROPPED_FRACTION`) vira `DroppedRowsError`, erro do arquivo (no lake, erro do `ConvertResult`). Antes, nada era contado.
+- **VRA não gera mais mês que não existe na virada do ano.** Em janeiro e fevereiro o catálogo incluía o mês corrente (404 diário e saída 3). O fim agora é hoje menos 2 meses atravessando o ano, e os dois últimos meses gerados levam `pending_publication` (a defasagem real oscila): se a fonte ainda não os publicou, o 404 é "ainda não publicado".
+- **Movimentação aeroportuária não congela mais a coleta.** `LAST_PUBLISHED` continua sendo o último mês confirmado (não deriva do relógio), mas os meses depois dele, até o mês corrente, passam a ser gerados com `pending_publication`: os que a ANAC já publicou são coletados sem esperar a constante subir; os que não existem viram "ainda não publicado". `discover` segue apontando o que passa de `LAST_PUBLISHED`.
+
+### Alterado
+
+- Requer `quantilica-cli>=0.30.0` (marca `pending_publication`). Com host anterior a marca é ignorada e o 404 desses meses volta a ser erro.
+- A suíte roda sem os DataContracts (a conftest os desliga), salvo nos testes marcados `contrato_real`.
+
 ## [0.10.1] - 2026-11-19
 
 ### Alterado
