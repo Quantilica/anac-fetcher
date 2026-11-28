@@ -71,6 +71,7 @@ def raw(tmp_path: Path) -> Path:
     return tmp_path / "raw"
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_um_parquet_por_anexo_e_mes_e_o_sem_sufixo_nao_vira_tabela(
     raw: Path, tmp_path: Path
 ) -> None:
@@ -123,6 +124,7 @@ def test_anexos_de_esquemas_diferentes_nao_sao_juntados(
     }
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_segunda_execucao_pula_tudo_sem_reescrever_nem_ler(
     raw: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -144,6 +146,7 @@ def test_segunda_execucao_pula_tudo_sem_reescrever_nem_ler(
     } == antes
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_anexo_alterado_reescreve_so_o_seu_mes(raw: Path, tmp_path: Path) -> None:
     lake = tmp_path / "lake"
     converter.convert(raw, lake)
@@ -167,6 +170,7 @@ def test_anexo_alterado_reescreve_so_o_seu_mes(raw: Path, tmp_path: Path) -> Non
     assert por_origem["atrasos-cancelamentos_2026-10_anexo-ii"] == 1
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_migracao_remove_os_parquets_antigos_inclusive_a_copia_sem_sufixo(
     raw: Path, tmp_path: Path
 ) -> None:
@@ -207,6 +211,7 @@ def _sem_sufixo_diferente(raw: Path) -> Path:
     return antigo
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_sem_sufixo_que_nao_copia_anexo_num_mes_com_anexos_e_superado(
     raw: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -230,6 +235,7 @@ def test_sem_sufixo_que_nao_copia_anexo_num_mes_com_anexos_e_superado(
     assert itens[antigo.name].dataset is None
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_auditoria_nao_acusa_o_sem_sufixo_superado(raw: Path, tmp_path: Path) -> None:
     entrada = tmp_path / "entrada"
     shutil.copytree(raw, entrada / SOURCE_ID)
@@ -245,6 +251,7 @@ def test_auditoria_nao_acusa_o_sem_sufixo_superado(raw: Path, tmp_path: Path) ->
     assert not [f for f in report.findings if f.category == "sem_parquet"]
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_sem_sufixo_num_mes_sem_anexos_e_tabela_propria(
     raw: Path, tmp_path: Path
 ) -> None:
@@ -367,6 +374,7 @@ def test_fold_twins_so_dobra_copia_exata_de_anexo_da_mesma_particao(
     assert fold_twins(routed)[1] == []
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_auditoria_do_lake_agrupado_e_do_migrado(raw: Path, tmp_path: Path) -> None:
     for migrado in (False, True):
         base = tmp_path / ("m" if migrado else "n")

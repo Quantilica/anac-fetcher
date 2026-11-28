@@ -19,8 +19,6 @@ from anac_fetcher.wrangling import (  # noqa: E402
     convert_one,
 )
 
-pytestmark = pytest.mark.contrato_real
-
 COLUNAS_VRA = [f.name for f in CONTRACTS["vra"].fields]
 BOM = ";".join(COLUNAS_VRA) + "\n" + ";".join(["1"] * len(COLUNAS_VRA)) + "\n"
 RUIM = "Empresa;Numero do Voo\nLATAM;1234\n"

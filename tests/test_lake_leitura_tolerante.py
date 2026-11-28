@@ -20,6 +20,7 @@ def _bruto(tmp_path: Path, nome: str, texto: str) -> Path:
     return raw
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_poucas_linhas_cortadas_convertem_com_aviso(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:

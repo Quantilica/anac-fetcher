@@ -162,13 +162,19 @@ def extracted_data(path: Path) -> Iterator[Path]:
         yield inner
 
 
+# Linhas de data que a ANAC grava antes do cabeçalho. "Criado em:" aparece em
+# aerodromos-heliponto-privado (e no "xls" de texto do helideck); sem ele a linha
+# virava o cabeçalho de uma coluna só.
+_PREAMBLE_MARKERS = ("Atualizado em:", "Criado em:")
+
+
 def _preamble_rows(path: Path) -> int:
     """Conta linhas de preâmbulo no topo de arquivos CSV da ANAC.
 
-    Alguns arquivos de dados abertos têm uma linha "Atualizado em: ..." (com BOM
-    opcional) antes do cabeçalho real; outros começam direto pelo cabeçalho (também
-    com BOM). O BOM sozinho não é preâmbulo: só conta a linha que, sem o BOM,
-    começa por "Atualizado em:".
+    Alguns arquivos de dados abertos têm uma linha "Atualizado em: ..." ou
+    "Criado em: ..." (com BOM opcional) antes do cabeçalho real; outros começam
+    direto pelo cabeçalho (também com BOM). O BOM sozinho não é preâmbulo: só conta
+    a linha que, sem o BOM, começa por um dos marcadores de :data:`_PREAMBLE_MARKERS`.
 
     Args:
         path (Path): O caminho do arquivo.
@@ -180,7 +186,7 @@ def _preamble_rows(path: Path) -> int:
         with open(path, encoding="utf-8", errors="replace") as f:
             count = 0
             line = f.readline()
-            while line.lstrip("\ufeff").startswith("Atualizado em:"):
+            while line.lstrip("\ufeff").startswith(_PREAMBLE_MARKERS):
                 count += 1
                 line = f.readline()
         return count

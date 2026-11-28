@@ -21,6 +21,7 @@ from anac_fetcher.wrangling import convert_one  # noqa: E402
 CSV = "Empresa;Numero do Voo;Codigo DI;Codigo Tipo Linha\nLATAM;1234;0;N\n"
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_one_zip_com_subpasta_no_temp_da_sessao(
     tmp_path: Path, guarda_extracao_sem_residuo: Path
 ) -> None:

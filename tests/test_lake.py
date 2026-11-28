@@ -53,6 +53,7 @@ def test_converter_datasets() -> None:
     assert "dados-estatisticos" in datasets
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_end_to_end(tmp_path: Path) -> None:
     raw_dir = tmp_path / "raw"
     # Create VRA fixture
@@ -102,6 +103,7 @@ def test_convert_end_to_end(tmp_path: Path) -> None:
     assert res2.skipped == 2
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_cli_convert(tmp_path: Path) -> None:
     raw_dir = tmp_path / "raw"
     vra_dir = raw_dir / _GROUP_DIRS["vra"]

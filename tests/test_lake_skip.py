@@ -78,6 +78,7 @@ def sem_hash_por_leitura(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(manifests, "sha256_file", falha)
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_segunda_rodada_nao_extrai_zip_nem_le_dados(
     tmp_path: Path, leituras: list[str], sem_hash_por_leitura: None
 ) -> None:
@@ -95,6 +96,7 @@ def test_segunda_rodada_nao_extrai_zip_nem_le_dados(
     assert leituras == []
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_zip_novo_extrai_e_converte(tmp_path: Path, leituras: list[str]) -> None:
     raw, lake = _bruto(tmp_path), tmp_path / "lake"
     converter.convert(raw, lake, datasets=["vra"])
@@ -110,6 +112,7 @@ def test_zip_novo_extrai_e_converte(tmp_path: Path, leituras: list[str]) -> None
     assert [v.split(":")[0] for v in leituras] == ["extracted_data", "read_file"]
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_force_extrai_e_reconverte(tmp_path: Path, leituras: list[str]) -> None:
     raw, lake = _bruto(tmp_path), tmp_path / "lake"
     converter.convert(raw, lake, datasets=["vra"])
@@ -167,6 +170,7 @@ def sem_abrir_bruto(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):  # noqa: A
     return armar
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_segunda_rodada_nao_abre_nenhum_arquivo_do_bruto(
     tmp_path: Path, sem_abrir_bruto, sem_hash_por_leitura: None
 ) -> None:
@@ -178,6 +182,7 @@ def test_segunda_rodada_nao_abre_nenhum_arquivo_do_bruto(
     assert (res.converted, res.skipped, res.errors) == (0, 2, [])
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_sha256_com_erro_de_es_vira_erro_do_arquivo_e_nao_derruba_o_convert(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -242,6 +247,7 @@ def test_conversao_interrompida_numa_tabela_e_completada(
     assert r3.skipped == r1.converted + 1
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_arquivo_interrompido_no_zip_e_completado(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

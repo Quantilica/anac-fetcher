@@ -97,6 +97,7 @@ def test_extracted_data_converte_storage_error_em_runtime_error(
 
 
 @pytest.mark.usefixtures("sem_aviso_do_core")
+@pytest.mark.usefixtures("sem_contratos")
 def test_wrangling_convert_one_zip_com_subpasta_nao_deixa_residuo(
     tmp_path: Path, temp_isolado: Path
 ) -> None:
@@ -120,6 +121,7 @@ def test_wrangling_zip_sem_dados_nao_deixa_residuo(
 
 
 @pytest.mark.usefixtures("sem_aviso_do_core")
+@pytest.mark.usefixtures("sem_contratos")
 def test_lake_build_zip_com_subpasta_nao_deixa_residuo(
     tmp_path: Path, temp_isolado: Path
 ) -> None:

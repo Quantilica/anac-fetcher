@@ -52,6 +52,7 @@ def test_arquivo_sem_sufixo_do_golden_e_copia_exata_de_um_anexo() -> None:
         assert len(copias) == 1, chave
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_conteudo_do_lake_igual_ao_do_conversor_anterior(tmp_path: Path) -> None:
     build_raw(tmp_path / "raw")
     res = converter.convert(tmp_path / "raw", tmp_path / "lake")

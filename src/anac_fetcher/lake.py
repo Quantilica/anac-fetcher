@@ -34,6 +34,7 @@ try:
         GroupMember,
         LakeError,
         LakeWriter,
+        output_id,
         sha256_file,
     )
     from quantilica.core.lake import (
@@ -74,6 +75,26 @@ SOURCE_ID = "anac"
 _GRUPOS_POR_TABELA = frozenset({"atrasos-cancelamentos"})
 CONTRACT_VERSION = 1
 CONVERTER_VERSION = "1"
+
+# Grupos cujo Parquet gravado antes da 0.11.0 está errado e precisa ser refeito
+# uma vez: o CSV de ``aero-heliponto-privado`` começa por "Criado em: ..." (o
+# leitor só conhecia "Atualizado em:") e o Parquet saiu com UMA coluna, o próprio
+# texto do preâmbulo; agora tem as 27 colunas do arquivo. Estes grupos não têm
+# versões de conversor no rodapé (só ``_GRUPOS_POR_TABELA`` tem), então a saída
+# declarada (``origin_outputs``) faz o papel dela: um Parquet sem a declaração não
+# é pulado e é regravado com ela; nas rodadas seguintes a declaração confere e o
+# arquivo é pulado. Para um novo grupo errado, basta incluí-lo aqui.
+_REGRAVAR_UMA_VEZ = frozenset({"aero-heliponto-privado"})
+
+
+def _saidas_declaradas(
+    group: str, raw_file: Path, partitions: dict[str, Any], key: str | None = None
+) -> list[str] | None:
+    """A saída declarada do bruto, só nos grupos de ``_REGRAVAR_UMA_VEZ``."""
+    if group not in _REGRAVAR_UMA_VEZ:
+        return None
+    return [output_id(partitions, key or file_key(raw_file))]
+
 
 _YM = re.compile(r"^(?P<ano>\d{4})-(?P<mes>\d{2})$")
 # A ANAC publica o mesmo conteúdo em vários formatos ("...-csv@data.csv",
@@ -459,7 +480,11 @@ class LakeConverter:
                 # vem do sidecar). Planilha de várias abas grava uma chave por
                 # aba, então nunca bate aqui e segue para a leitura.
                 try:
-                    em_dia = writer.is_current(raw_file, partitions=part_vals)
+                    em_dia = writer.is_current(
+                        raw_file,
+                        partitions=part_vals,
+                        origin_outputs=_saidas_declaradas(group, raw_file, part_vals),
+                    )
                 except Exception as exc:  # noqa: BLE001
                     # sha256 ou rodapé ilegível (E/S de montagem de rede): o caminho
                     # completo tenta ler e reporta o erro do arquivo.
@@ -505,6 +530,9 @@ class LakeConverter:
                                 partitions=part_vals,
                                 file_key_name=file_key_override,
                                 converter=f"anac-fetcher {__version__}",
+                                origin_outputs=_saidas_declaradas(
+                                    group, raw_file, part_vals, file_key_override
+                                ),
                             )
                             if written.status == "skipped":
                                 result.skipped += 1

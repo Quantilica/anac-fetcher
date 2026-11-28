@@ -1,0 +1,4 @@
+Criado em: 2026-11-20
+Código OACI;CIAD;Nome;Município;UF;Tipo;LATGEOPOINT;LONGEOPOINT;Latitude;Longitude;Altitude;Operação Diurna;Operação Noturna;Rampa de Aproximação;Formato da Área de Pouso;Dimensões;Resistência do Pavimento;Superfície;Portaria de Registro;Link Portaria;Luzes de Aproximação;Luzes de Área de Toque e Elevação Inicial (TLOF);Indicador Visual de Rampa de Aproximação;Luzes Indicadoras de Área de Aproximação Final de Decolagem (FATO);Luzes de Obstáculo;Luzes de Ponto de Visada de Heliponto;TIPO_USO
+SNBO;CE0134;Botelho Belchior;ARATUBA;Ceará;No solo;-4,3786111;-39,034167;04°22'43"S;039°02'03"W;768,0;VFR;VFR;16;Quadrado;19,5 m;4,00;Concreto;PA2019-69;https://pergamum.anac.gov.br/arquivos/PA2019-69.pdf;;;;;;;Privado
+SNEM;BA0213;Enseada;SALVADOR;Bahia;No solo;-12,795556;-38,643611;12°47'44"S;038°38'37"W;13,0;VFR;VFR;11;Quadrado;21 m;4,00;Concreto;PA2016-2101;https://pergamum.anac.gov.br/arquivos/PA2016-2101.pdf;;;;;;;Privado

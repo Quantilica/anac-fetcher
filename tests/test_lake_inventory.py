@@ -94,6 +94,7 @@ def test_inventory_separates_mixed_granularities(tmp_path: Path) -> None:
     assert items["drones-atual-csv@20261021.csv"].dataset == "drones-atual"
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_inventory_matches_convert(tmp_path: Path) -> None:
     raw = tmp_path / "raw"
     group_dir = raw / _GROUP_DIRS["vra"]

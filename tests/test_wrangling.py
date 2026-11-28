@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import polars as pl
+import pytest
 
 from anac_fetcher.wrangling import (
     convert_group,
@@ -27,6 +28,7 @@ def test_spec_for_defaults():
     assert spec["numeric_columns"] == []
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_one_writes_partitioned_parquet(tmp_path):
     src = _make_group_input(
         tmp_path,
@@ -67,6 +69,7 @@ def test_convert_atrasos_anexos_do_not_overwrite(tmp_path):
     ]
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_one_json(tmp_path):
     src = _make_group_input(
         tmp_path,
@@ -84,6 +87,7 @@ def test_convert_one_json(tmp_path):
     assert df["classificacao"][0] == "ACIDENTE"
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_one_skips_existing(tmp_path):
     src = _make_group_input(
         tmp_path,
@@ -97,6 +101,7 @@ def test_convert_one_skips_existing(tmp_path):
     assert second == []
 
 
+@pytest.mark.usefixtures("sem_contratos")
 def test_convert_group_ignores_manifest_sidecar(tmp_path):
     src = _make_group_input(
         tmp_path,
