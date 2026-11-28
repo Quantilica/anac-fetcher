@@ -3,19 +3,27 @@
 from __future__ import annotations
 
 import datetime as dt
+import logging
 from pathlib import Path
 from typing import Any
 
 import typer
-from quantilica.cli.sdk import FetcherApp, make_resolve_groups
+from quantilica.cli.sdk import (
+    PENDING_PUBLICATION_REASON,
+    CheckPlan,
+    FetcherApp,
+    make_resolve_groups,
+)
 from quantilica.cli.ui import get_console
 from quantilica.core.registry import FetcherInfo
 from quantilica.core.sync import FreshnessPolicy
 
 from .catalog import GROUP_ALIASES, GROUPS, list_datasets
+from .pending import stale_pending_message
 from .storage import DataRepository
 
 console = get_console()
+logger = logging.getLogger(__name__)
 
 
 def _out(text: str) -> None:
@@ -66,7 +74,65 @@ def _resolve_groups(groups: list[str] | None) -> list[str]:
         raise typer.BadParameter(str(exc)) from None
 
 
-fetcher = FetcherApp(
+class AnacFetcherApp(FetcherApp):
+    """``FetcherApp`` que avisa quando um período pendente está sem publicação há meses.
+
+    As entradas ``pending_publication`` não dão erro no 404, então um nome que a
+    ANAC mudou ficaria "pendente" para sempre. Um WARNING por execução (``sync`` e
+    ``check``, inclusive no modo de plano) diz desde quando não há publicação; o
+    código de saída não muda.
+    """
+
+    def download_datasets(
+        self,
+        entries: list[dict[str, Any]],
+        output_dir: Path,
+        workers: int = 4,
+        *,
+        force: bool = False,
+    ) -> tuple[int, int, list[tuple[str, str]]]:
+        """Baixa e avisa dos períodos pendentes que deram 404."""
+        if force:
+            result = super().download_datasets(
+                entries, output_dir, workers=workers, force=True
+            )
+        else:
+            result = super().download_datasets(entries, output_dir, workers=workers)
+        stats = self.last_download_stats
+        skipped = (
+            {
+                eid
+                for eid, why in stats.skipped_items
+                if why == PENDING_PUBLICATION_REASON
+            }
+            if stats is not None
+            else set()
+        )
+        self._warn_stale([e for e in entries if str(e.get("id")) in skipped])
+        return result
+
+    def check_datasets(
+        self, entries: list[dict[str, Any]], output_dir: Path, workers: int = 4
+    ) -> CheckPlan:
+        """Verifica o frescor e avisa dos períodos pendentes que deram 404."""
+        plan = super().check_datasets(entries, output_dir, workers=workers)
+        self._warn_stale(
+            [
+                dict(item.entry or {})
+                for item in plan.items
+                if item.reason == PENDING_PUBLICATION_REASON
+            ]
+        )
+        return plan
+
+    @staticmethod
+    def _warn_stale(pending_404: list[dict[str, Any]]) -> None:
+        message = stale_pending_message(pending_404)
+        if message is not None:
+            logger.warning("%s", message)
+
+
+fetcher = AnacFetcherApp(
     name="anac-fetcher",
     help="Dados da ANAC (Agência Nacional de Aviação Civil).",
     info=FetcherInfo(
