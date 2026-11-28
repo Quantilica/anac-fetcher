@@ -8,6 +8,7 @@ import polars as pl
 import pytest
 
 from anac_fetcher.reader import (
+    DroppedRowsError,
     extracted_data,
     normalize_dtypes,
     parse_filename,
@@ -171,17 +172,66 @@ def test_read_csv_skips_preamble(tmp_path):
 
 def test_read_csv_sniffs_separator(tmp_path):
     path = tmp_path / "dados.csv"
-    path.write_text("produto,valor\nGasolina,5,49\n")
+    # 1 linha longa em 200 (0,5%): cortada, dentro do limite de 1%
+    path.write_text("produto,valor\nGasolina,5,49\n" + "Etanol,4\n" * 199)
     df = read_csv(path, {})
-    assert df.shape == (1, 2)
+    assert df.shape == (200, 2)
     assert df.columns == ["produto", "valor"]
 
 
 def test_read_csv_truncates_ragged(tmp_path):
     path = tmp_path / "dados.csv"
-    path.write_text("a;b\n1;2\n3;4;5\n")
+    path.write_text("a;b\n1;2\n3;4;5\n" + "7;8\n" * 198)
     df = read_csv(path, {})
+    assert df.shape == (200, 2)
+    assert df["b"][1] == "4"  # a linha longa perdeu só o campo a mais
+
+
+def test_read_csv_ragged_conta_e_avisa(tmp_path, caplog):
+    path = tmp_path / "dados.csv"
+    path.write_text("a;b\n1;2\n3;4;5\n" + "7;8\n" * 198)
+    with caplog.at_level("WARNING", logger="anac_fetcher.reader"):
+        read_csv(path, {})
+    avisos = [r.getMessage() for r in caplog.records]
+    assert any("1 de 200 linhas" in m and "dados.csv" in m for m in avisos)
+
+
+def test_read_csv_ragged_acima_de_1_por_cento_e_erro(tmp_path):
+    path = tmp_path / "dados.csv"
+    path.write_text("a;b\n" + "1;2;3\n" * 3 + "7;8\n" * 97)  # 3%
+    with pytest.raises(DroppedRowsError, match="3 de 100 linhas"):
+        read_csv(path, {})
+
+
+def test_read_csv_sem_linha_longa_nao_conta_nem_avisa(tmp_path, caplog):
+    path = tmp_path / "dados.csv"
+    path.write_text("a;b\n1;2\n3\n")  # linha curta vira nulo, nada cortado
+    with caplog.at_level("WARNING", logger="anac_fetcher.reader"):
+        df = read_csv(path, {})
     assert df.shape == (2, 2)
+    assert not caplog.records
+
+
+def test_read_csv_aspas_desbalanceadas_conta_no_caminho_sem_aspas(tmp_path):
+    # aspas desbalanceadas levam ao último recurso (sem aspas); lá também conta
+    path = tmp_path / "dados.csv"
+    path.write_text('a;b\n"x"";"y\n' + "7;8\n" * 199, encoding="latin-1")
+    df = read_csv(path, {})
+    assert df.shape[1] == 2
+
+
+def test_read_ndjson_valores_nulados_contados_e_limite(tmp_path, caplog):
+    boa = '{"a": 1, "b": "x"}\n'
+    tipo_errado = '{"a": true, "b": "x"}\n'  # "a" é inteiro nas demais
+    path = tmp_path / "dados.json"
+    path.write_text(boa * 199 + tipo_errado)
+    with caplog.at_level("WARNING", logger="anac_fetcher.reader"):
+        df = read_json(path)
+    assert df.height == 200
+    assert any("1 de 400 valores" in r.getMessage() for r in caplog.records)
+    path.write_text(boa * 90 + tipo_errado * 10)  # 10 de 200 valores: 5%
+    with pytest.raises(DroppedRowsError, match="10 de 200 valores"):
+        read_json(path)
 
 
 def test_read_json_mixed_types(tmp_path):

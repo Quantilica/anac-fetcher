@@ -9,6 +9,7 @@ Parquet com metadados de proveniência extraídos do sidecar ``DownloadManifest`
 
 from __future__ import annotations
 
+import csv
 import json
 import logging
 import re
@@ -230,21 +231,22 @@ def _read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
     skip = spec.get("skip_rows", 0) + _preamble_rows(path)
     kwargs["separator"] = spec.get("separator") or _sniff_separator(path, skip)
     kwargs["infer_schema_length"] = spec.get("infer_schema_length", 0)
-    kwargs["truncate_ragged_lines"] = True
     if skip:
         kwargs["skip_rows"] = skip
     encoding = spec.get("encoding")
     try:
-        return read_brazilian_csv(
+        return _read_csv_counting(
             path, encoding=encoding or "utf-8", decimal=",", **kwargs
         )
     except Exception as exc:  # fallback latin-1
-        if encoding is not None:
+        if encoding is not None or isinstance(exc, DroppedRowsError):
             raise
         logger.debug("UTF-8 falhou (%s); tentando latin-1", exc)
         try:
-            return read_brazilian_csv(path, encoding="latin-1", decimal=",", **kwargs)
+            return _read_csv_counting(path, encoding="latin-1", decimal=",", **kwargs)
         except Exception as exc2:
+            if isinstance(exc2, DroppedRowsError):
+                raise
             logger.warning("%s: aspas malformadas (%s); lendo sem aspas", path, exc2)
             return _read_csv_unquoted(path, kwargs)
 
@@ -314,6 +316,122 @@ def read_csv(path: Path, spec: dict[str, Any]) -> pl.DataFrame:
     return _clean_columns(_read_csv(path, spec))
 
 
+# Fração máxima de linhas que a leitura tolerante pode descartar ou cortar sem que
+# o arquivo vire erro (acima disso o dado está estragado, não só imperfeito).
+MAX_DROPPED_FRACTION = 0.01
+
+
+class DroppedRowsError(ValueError):
+    """A leitura tolerante descartou ou cortou linhas demais (erro do arquivo)."""
+
+
+def _is_ragged_error(exc: Exception) -> bool:
+    """``True`` se o leitor recusou linha com mais campos que o cabeçalho."""
+    return "more fields than defined" in str(exc)
+
+
+def _check_dropped(
+    path: Path, dropped: int, total: int, what: str, *, unit: str = "linhas"
+) -> None:
+    """Registra as linhas afetadas e falha se passam de ``MAX_DROPPED_FRACTION``.
+
+    Raises:
+        ValueError: Se ``dropped / total`` passa de ``MAX_DROPPED_FRACTION``.
+    """
+    if dropped <= 0:
+        return
+    fraction = dropped / total if total else 1.0
+    if fraction > MAX_DROPPED_FRACTION:
+        raise DroppedRowsError(
+            f"{path.name}: {dropped} de {total} {unit} ({fraction:.1%}) {what}; "
+            f"acima do limite de {MAX_DROPPED_FRACTION:.0%}, arquivo com erro"
+        )
+    logger.warning(
+        "%s: leitura tolerante: %d de %d %s (%.2f%%) %s",
+        path.name,
+        dropped,
+        total,
+        unit,
+        fraction * 100,
+        what,
+    )
+
+
+def _count_ragged_rows(
+    path: Path,
+    *,
+    encoding: str,
+    separator: str,
+    skip_rows: int,
+    quoted: bool,
+) -> tuple[int, int] | None:
+    """Conta ``(linhas de dados, linhas com mais campos que o cabeçalho)``.
+
+    Só roda quando o leitor estrito recusou o arquivo. ``None`` se a contagem não
+    foi possível (campo maior que o limite do ``csv``).
+    """
+    rows = ragged = 0
+    try:
+        with open(path, encoding=encoding, errors="replace", newline="") as fh:
+            for _ in range(skip_rows):
+                fh.readline()
+            reader = (
+                csv.reader(fh, delimiter=separator)
+                if quoted
+                else csv.reader(fh, delimiter=separator, quoting=csv.QUOTE_NONE)
+            )
+            header = next(reader, None)
+            if header is None:
+                return 0, 0
+            width = len(header)
+            for record in reader:
+                if not record:
+                    continue
+                rows += 1
+                if len(record) > width:
+                    ragged += 1
+    except (csv.Error, OSError):
+        return None
+    return rows, ragged
+
+
+def _read_csv_counting(path: Path, **kwargs: Any) -> pl.DataFrame:
+    """Lê o CSV de forma estrita; só se houver linha longa demais, tolera e conta.
+
+    O leitor estrito é o caminho comum. Se ele recusa uma linha com mais campos
+    que o cabeçalho, o arquivo é relido cortando essas linhas
+    (``truncate_ragged_lines``), as linhas cortadas são contadas (um segundo passo
+    só neste caso) e registradas em WARNING; acima de ``MAX_DROPPED_FRACTION`` o
+    arquivo é erro.
+
+    Raises:
+        DroppedRowsError: Se a fração de linhas cortadas passa do limite.
+    """
+    try:
+        return read_brazilian_csv(path, **kwargs)
+    except Exception as exc:
+        if not _is_ragged_error(exc):
+            raise
+    df = read_brazilian_csv(path, truncate_ragged_lines=True, **kwargs)
+    counted = _count_ragged_rows(
+        path,
+        encoding=kwargs["encoding"],
+        separator=kwargs["separator"],
+        skip_rows=kwargs.get("skip_rows", 0),
+        quoted=kwargs.get("quote_char", '"') is not None,
+    )
+    if counted is None:
+        logger.warning(
+            "%s: leitura tolerante cortou linhas com campos a mais; "
+            "contagem indisponível",
+            path.name,
+        )
+        return df
+    rows, ragged = counted
+    _check_dropped(path, ragged, rows, "cortadas por terem mais campos que o cabeçalho")
+    return df
+
+
 _MAX_UNQUOTED_COLUMNS = 500
 _MAX_LINE_BYTES = 1 << 20
 
@@ -327,12 +445,12 @@ def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
     """
     for enc in ("utf-8", "latin-1"):
         try:
-            df = read_brazilian_csv(
+            df = _read_csv_counting(
                 path, encoding=enc, decimal=",", quote_char=None, **kwargs
             )
             break
         except Exception as exc:  # noqa: BLE001 - tenta a outra codificação
-            if enc == "latin-1":
+            if enc == "latin-1" or isinstance(exc, DroppedRowsError):
                 raise
             logger.debug(
                 "%s: leitura como %s falhou (%s); tentando latin-1", path, enc, exc
@@ -347,6 +465,37 @@ def _read_csv_unquoted(path: Path, kwargs: dict[str, Any]) -> pl.DataFrame:
     )
 
 
+def _count_nulled_values(path: Path, df: pl.DataFrame) -> tuple[int, int]:
+    """Conta os valores que ``ignore_errors`` trocou por nulo, e o total lido.
+
+    Só roda no recuo tolerante: relê o arquivo linha a linha e compara, por coluna,
+    os valores não nulos do arquivo com os do DataFrame.
+
+    Returns:
+        ``(valores_perdidos, valores_nao_nulos_no_arquivo)``.
+    """
+    expected = dict.fromkeys(df.columns, 0)
+    with open(path, "rb") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+            if not isinstance(record, dict):
+                continue
+            for key, value in record.items():
+                if key in expected and value is not None:
+                    expected[key] += 1
+    lost = total = 0
+    for column, want in expected.items():
+        have = df.height - df[column].null_count()
+        total += want
+        lost += max(0, want - have)
+    return lost, total
+
+
 def _read_ndjson(path: Path) -> pl.DataFrame:
     """Lê NDJSON em streaming; listas viram texto separado por ``; ``."""
     try:
@@ -359,6 +508,14 @@ def _read_ndjson(path: Path) -> pl.DataFrame:
             exc,
         )
         df = pl.read_ndjson(path, infer_schema_length=None, ignore_errors=True)
+        nulled, total = _count_nulled_values(path, df)
+        _check_dropped(
+            path,
+            nulled,
+            total,
+            "valores viraram nulo por tipo incompatível (ignore_errors)",
+            unit="valores",
+        )
     return df.with_columns(
         pl.col(c).cast(pl.List(pl.String)).list.join("; ")
         for c, t in df.schema.items()
