@@ -50,10 +50,13 @@ anac-fetcher sync --dry-run
 ```
 
 O `sync` baixa em paralelo (`--workers`, padrão 4) e pula o que já está
-atualizado. Falhas pontuais (404 de meses ainda não publicados, ou de
-formatos que não existem para aquele mês) são normais, não interrompem a
-sincronização e aparecem no resumo final — rode `sync` de novo para tentar
-só o que faltou.
+atualizado. Falhas pontuais (404 de formatos que não existem
+para aquele mês) não interrompem a sincronização e aparecem no resumo final —
+rode `sync` de novo para tentar só o que faltou. Os meses recentes que a ANAC
+ainda pode não ter publicado (os dois últimos do `vra` e, na movimentação
+aeroportuária, os posteriores ao último confirmado) levam a marca
+`pending_publication` no catálogo: com o `quantilica-cli` 0.30.0 ou mais novo, o
+404 deles conta como "ainda não publicado" e não altera o código de saída.
 
 Grupos disponíveis:
 

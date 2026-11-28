@@ -35,17 +35,22 @@ _MESES_PT = {
     12: "12 - Dezembro",
 }
 
-# Última competência conhecida no catálogo (dados de meses recentes podem
-# ainda não estar publicados; falhas de download individuais não interrompem
-# o restante da sincronização — ver download.download_group).
-_LAST_YEAR = dt.date.today().year
-_LAST_MONTH = dt.date.today().month
+# Defasagem da publicação: o VRA de um mês sai cerca de 2 meses depois, então o
+# catálogo vai até o mês de hoje menos 2 (``_LAG_MONTHS``). Como a defasagem
+# oscila de um mês para o outro, os 2 últimos meses gerados (``_PENDING_MONTHS``)
+# levam ``pending_publication``: se a fonte ainda não os publicou, o 404 é "ainda
+# não publicado", não erro; os mais antigos, que já deveriam existir, seguem
+# falhando em 404.
+_LAG_MONTHS = 2
+_PENDING_MONTHS = 2
 
 
-def _vra_entry(year: int, month: int, ext: str) -> DatasetEntry:
+def _vra_entry(
+    year: int, month: int, ext: str, *, pending: bool = False
+) -> DatasetEntry:
     month_dir = quote(_MESES_PT[month], safe="")
     url = f"{_BASE}/{year}/{month_dir}/VRA_{year}{month}.{ext}"
-    return DatasetEntry(
+    entry = DatasetEntry(
         id=f"vra-{year}-{month:02d}-{ext}",
         base_id="vra",
         name=f"Voo Regular Ativo — {_MESES_PT[month][5:]}/{year}",
@@ -57,21 +62,33 @@ def _vra_entry(year: int, month: int, ext: str) -> DatasetEntry:
         semester=None,
         month=month,
     )
+    if pending:
+        entry["pending_publication"] = True
+    return entry
 
 
-def _vra_entries_list() -> list[DatasetEntry]:
+def _month_index(year: int, month: int) -> int:
+    return year * 12 + (month - 1)
+
+
+def _vra_entries_list(today: dt.date | None = None) -> list[DatasetEntry]:
+    """Entradas do VRA de 2000-01 até ``today`` menos a defasagem.
+
+    Na virada do ano a conta atravessa o ano (em janeiro o último mês é novembro
+    do ano anterior), em vez de gerar um mês do ano corrente que não existe.
+    """
+    today = today or dt.date.today()
+    last = _month_index(today.year, today.month) - _LAG_MONTHS
+    first_pending = last - (_PENDING_MONTHS - 1)
     entries: list[DatasetEntry] = []
     _missing_months = {(2014, 6), (2014, 7)}
-    for year in range(2000, _LAST_YEAR + 1):
-        if year == _LAST_YEAR:
-            max_month = max(1, _LAST_MONTH - 2)  # VRA has ~2 months lag
-        else:
-            max_month = 12
-        for month in range(1, max_month + 1):
-            if (year, month) in _missing_months:
-                continue
-            for ext in ("csv", "json"):
-                entries.append(_vra_entry(year, month, ext))
+    for index in range(_month_index(2000, 1), last + 1):
+        year, month = divmod(index, 12)
+        month += 1
+        if (year, month) in _missing_months:
+            continue
+        for ext in ("csv", "json"):
+            entries.append(_vra_entry(year, month, ext, pending=index >= first_pending))
     return entries
 
 

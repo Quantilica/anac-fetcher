@@ -39,6 +39,13 @@ class DatasetEntry(TypedDict):
     # arquivo, no formato ``{base_id}_{partição}_{slug}@{carimbo}.{ext}``.
     slug: NotRequired[str | None]
 
+    # ``True`` marca o período que a fonte pode ainda não ter publicado (a borda
+    # recente do catálogo, ou os meses depois do último conhecido). O host
+    # (``quantilica-cli`` >= 0.30.0) trata o 404 dessa entrada como "ainda não
+    # publicado" (motivo ``pending-publication``), sem erro nem efeito no
+    # código de saída; qualquer outro erro segue sendo erro.
+    pending_publication: NotRequired[bool]
+
 
 class GroupInfo(TypedDict):
     """Represents a logical group of dataset entries.

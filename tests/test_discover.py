@@ -17,13 +17,13 @@ def _month_html(*yyyymm: str) -> str:
     )
 
 
-def test_catalogo_nao_gera_meses_alem_do_publicado() -> None:
-    ids = [
-        e["id"] if isinstance(e, dict) else e.id
-        for e in list_datasets("movimentacao-aeroportuaria")
-    ]
-    assert ids[-1] == "movimentacao-2025-12-csv"
-    assert not any("-2026-" in i for i in ids)
+def test_catalogo_nao_confirma_meses_alem_do_publicado() -> None:
+    """Depois de ``LAST_PUBLISHED`` só entram meses pendentes (404 tolerado)."""
+    entries = list_datasets("movimentacao-aeroportuaria")
+    firmes = [e for e in entries if not e.get("pending_publication")]
+    assert firmes[-1]["id"] == "movimentacao-2025-12-csv"
+    depois = [e for e in entries if (e["year"], e["month"]) > LAST_PUBLISHED]
+    assert all(e["pending_publication"] for e in depois)
     assert LAST_PUBLISHED == (2025, 12)
 
 
