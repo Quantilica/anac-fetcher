@@ -1,9 +1,10 @@
 """Aviso de período pendente sem publicação há meses.
 
 Entradas ``pending_publication`` (período que a ANAC pode ainda não ter publicado)
-não dão erro no 404. Para que um arquivo renomeado não fique "pendente" para
-sempre, o ``sync`` e o ``check`` emitem um WARNING quando o período pendente mais
-antigo que deu 404 está a mais de :data:`PENDING_WARN_MONTHS` meses de hoje.
+não dão erro no 404, e só enquanto estão dentro da folga do catálogo (na
+movimentação, ``PENDING_MAX_MONTHS``). Antes de a folga acabar e o 404 virar erro,
+o ``sync`` e o ``check`` emitem um WARNING quando o período pendente mais antigo
+que deu 404 está a mais de :data:`PENDING_WARN_MONTHS` meses de hoje.
 """
 
 from __future__ import annotations
@@ -15,8 +16,11 @@ from typing import Any
 from .catalog_movimentacao import LAST_PUBLISHED
 
 # Meses de calendário sem publicação a partir dos quais o aviso aparece. A
-# movimentação aeroportuária tem defasagem de meses; seis ainda é normal.
-PENDING_WARN_MONTHS = 6
+# movimentação aeroportuária publica em lotes e já deixou um mês esperar dez
+# meses (``catalog_movimentacao.PENDING_MAX_MONTHS`` documenta a medida), então
+# o aviso só vem acima disso; aos ``PENDING_MAX_MONTHS`` meses (12) a marca de
+# pendente cai e o 404 vira erro.
+PENDING_WARN_MONTHS = 10
 
 
 def _index(year: int, month: int) -> int:

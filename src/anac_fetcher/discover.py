@@ -2,18 +2,23 @@
 
 O servidor da ANAC é um índice de diretório (``{ano}/`` com
 ``Movimentacoes_Aeroportuarias_{YYYYMM}.csv``). Esta rotina lê o índice raiz e o
-do ano seguinte ao último catalogado, e informa meses publicados depois de
-:data:`anac_fetcher.catalog_movimentacao.LAST_PUBLISHED`.
+dos anos a partir do último confirmado e informa os meses publicados que o
+catálogo NÃO coleta. O catálogo gera os meses depois de
+:data:`anac_fetcher.catalog_movimentacao.LAST_PUBLISHED` até o mês corrente
+(marcados ``pending_publication``), então um mês novo dentro dessa janela já é
+coletado e não é achado; ele aparece só em ``ahead_of_confirmed``, como lembrete
+de subir a constante.
 """
 
 from __future__ import annotations
 
+import datetime as dt
 import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from .catalog_movimentacao import _BASE, LAST_PUBLISHED
+from .catalog_movimentacao import _BASE, LAST_PUBLISHED, _movimentacao_entries_list
 
 __all__ = ["DiscoverReport", "discover", "parse_months", "parse_years"]
 
@@ -37,10 +42,11 @@ class DiscoverReport:
 
     last_published_catalog: str = ""
     new_months: list[str] = field(default_factory=list)
+    ahead_of_confirmed: list[str] = field(default_factory=list)
 
     @property
     def has_changes(self) -> bool:
-        """Há meses publicados além do catálogo."""
+        """Há meses publicados que o catálogo não coleta (``new_months``)."""
         return bool(self.new_months)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,14 +71,19 @@ def _fetch_index(url: str) -> str | None:
 
 def discover(
     fetch: Callable[[str], str | None] = _fetch_index,
+    today: dt.date | None = None,
 ) -> DiscoverReport:
-    """Compara o índice da ANAC com :data:`LAST_PUBLISHED`.
+    """Compara o índice da ANAC com o que o catálogo coleta.
 
     Args:
         fetch: Função ``url -> html | None`` (``None`` = 404); injetável em testes.
+        today: Data de referência do catálogo (testes); padrão hoje.
 
     Returns:
-        DiscoverReport: Meses ``AAAA-MM`` publicados após o último catalogado.
+        DiscoverReport: ``new_months`` traz os meses ``AAAA-MM`` publicados que o
+        catálogo não gera (fora da janela até o mês corrente); ``ahead_of_confirmed``,
+        os publicados depois de ``LAST_PUBLISHED`` que o catálogo já coleta como
+        pendentes (só informativo, não conta como novidade).
     """
     last_year, last_month = LAST_PUBLISHED
     report = DiscoverReport(last_published_catalog=f"{last_year}-{last_month:02d}")
@@ -86,7 +97,9 @@ def discover(
         html = fetch(f"{_BASE}/{year}/")
         if html is not None:
             found.update(parse_months(html))
-    report.new_months = [
-        f"{y}-{m:02d}" for y, m in sorted(found) if (y, m) > LAST_PUBLISHED
+    covered = {(e["year"], e["month"]) for e in _movimentacao_entries_list(today)}
+    report.new_months = [f"{y}-{m:02d}" for y, m in sorted(found - covered)]
+    report.ahead_of_confirmed = [
+        f"{y}-{m:02d}" for y, m in sorted(found & covered) if (y, m) > LAST_PUBLISHED
     ]
     return report

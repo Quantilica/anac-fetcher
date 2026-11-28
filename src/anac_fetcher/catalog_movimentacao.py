@@ -27,17 +27,28 @@ _BASE = f"{_ROOT}/{_MOV_DIR}"
 
 _START_YEAR = 2019  # primeiro ano publicado (confirmado via servidor)
 
-# Último mês publicado no servidor (snapshot de 2026-11-05: o diretório
-# ``2026/`` não existe; o índice termina em ``202512``). A ANAC não segue
-# defasagem fixa, então o fim dos meses CONFIRMADOS NÃO deriva da data de hoje:
-# gerar meses por relógio, como erro, produzia 404 em todo o ano seguinte. Para
-# avançar, rode ``anac-fetcher discover`` e atualize esta constante.
+# Último mês CONFIRMADO no servidor (snapshot de 2026-11-28: ``2026/`` tem de
+# ``202601`` a ``202605``; os cinco apareceram juntos em 2026-11-17). Não deriva
+# do relógio: a ANAC publica em lotes, sem defasagem fixa (``2026-01`` esperou
+# cerca de dez meses). Esta constante só diz até onde o 404 é erro desde o
+# primeiro dia; NÃO é preciso editá-la para a coleta enxergar um mês novo.
 #
-# Os meses DEPOIS dele, até o mês corrente, também entram no catálogo, mas com
-# ``pending_publication``: os que a fonte já publicou passam a ser coletados sem
-# esperar a constante subir, e os que ainda não existem viram "ainda não
-# publicado" (404 tolerado pelo host), sem erro.
-LAST_PUBLISHED: tuple[int, int] = (2025, 12)
+# Os meses DEPOIS dela, até o mês corrente, também entram no catálogo, com
+# ``pending_publication``: os que a fonte já publicou são coletados sem esperar a
+# constante subir, e os que ainda não existem viram "ainda não publicado" (404
+# tolerado pelo host). A folga é limitada: um mês pendente com mais de
+# ``PENDING_MAX_MONTHS`` meses de calendário deixa de levar a marca, e o seu 404
+# volta a ser erro (a fonte parou de publicar ou renomeou o arquivo).
+LAST_PUBLISHED: tuple[int, int] = (2026, 5)
+
+# Folga, em meses de calendário contados do mês do arquivo até hoje, em que o
+# 404 de um mês depois de ``LAST_PUBLISHED`` ainda é "não publicado". Medido em
+# 2026-11-28: o atraso observado vai de ~6 meses (``2026-05``, o mais recente
+# publicado) a ~10 meses (``2026-01``, que esperou até meados de novembro), e o
+# diretório de cada ano só foi fechado perto de 1.º de junho do ano seguinte.
+# Doze cobre o pior caso visto com dois meses de margem sem esconder um ano
+# inteiro de silêncio.
+PENDING_MAX_MONTHS = 12
 
 
 def _movimentacao_entry(
@@ -61,19 +72,31 @@ def _movimentacao_entry(
     return entry
 
 
+def _month_index(year: int, month: int) -> int:
+    return year * 12 + (month - 1)
+
+
 def _movimentacao_entries_list(today: dt.date | None = None) -> list[DatasetEntry]:
-    """Meses de 2019-03 até ``LAST_PUBLISHED`` e, marcados como pendentes, os
-    seguintes até o mês de ``today`` (inclusive)."""
+    """Meses de 2019-03 até o mês de ``today`` (inclusive).
+
+    Os meses até ``LAST_PUBLISHED`` são firmes. Os seguintes levam
+    ``pending_publication`` enquanto estiverem a no máximo ``PENDING_MAX_MONTHS``
+    meses de ``today`` (a virada do ano conta como mês corrido); mais antigos que
+    isso, o 404 volta a ser erro.
+    """
     today = today or dt.date.today()
-    last_year, last_month = LAST_PUBLISHED
+    now = _month_index(today.year, today.month)
     entries: list[DatasetEntry] = []
-    for year in range(_START_YEAR, max(last_year, today.year) + 1):
+    for year in range(_START_YEAR, max(LAST_PUBLISHED[0], today.year) + 1):
         # A publicação só iniciou em 2019-03; 2019-01/02 retornam 404.
         start_month = 3 if year == _START_YEAR else 1
         for month in range(start_month, 13):
-            if (year, month) > (today.year, today.month):
+            index = _month_index(year, month)
+            if index > now:
                 break
-            pending = (year, month) > LAST_PUBLISHED
+            pending = (year, month) > LAST_PUBLISHED and (
+                now - index <= PENDING_MAX_MONTHS
+            )
             entries.append(_movimentacao_entry(year, month, pending=pending))
     return entries
 

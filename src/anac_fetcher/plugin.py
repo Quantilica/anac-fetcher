@@ -181,7 +181,7 @@ def discover_cmd(
         False, "--fail-on-change", help="Sai com código 1 se houver novidade"
     ),
 ) -> None:
-    """Detecta meses de movimentação publicados além do catálogo."""
+    """Detecta meses de movimentação publicados que o catálogo não coleta."""
     import json
 
     from .discover import discover
@@ -193,6 +193,11 @@ def discover_cmd(
         _out(f"Catálogo vai até {report.last_published_catalog}.")
         for month in report.new_months:
             _out(f"NOVO     movimentacao-{month}")
+        if report.ahead_of_confirmed:
+            _out(
+                "Já coletados como pendentes (suba LAST_PUBLISHED): "
+                + ", ".join(report.ahead_of_confirmed)
+            )
         if not report.has_changes:
             _out("Sem novidades em relação ao catálogo.")
     if fail_on_change and report.has_changes:
