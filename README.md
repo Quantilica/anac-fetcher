@@ -54,12 +54,12 @@ atualizado. Falhas pontuais (404 de formatos que não existem
 para aquele mês) não interrompem a sincronização e aparecem no resumo final —
 rode `sync` de novo para tentar só o que faltou. Os meses recentes que a ANAC
 ainda pode não ter publicado (os dois últimos do `vra` e de `atrasos-cancelamentos` e,
-na movimentação aeroportuária, os posteriores ao último confirmado, até 12 meses
+na movimentação aeroportuária, os posteriores ao último confirmado, até 18 meses
 para trás) levam a marca `pending_publication` no catálogo: com o
 `quantilica-cli` 0.30.0 ou mais novo, o 404 deles conta como "ainda não
 publicado" e não altera o código de saída. Na movimentação o catálogo vai até o
-mês corrente sem ninguém editar nada; um mês com mais de 12 meses sem publicação
-volta a dar erro. `discover` só acusa o que o catálogo não coleta.
+mês corrente sem ninguém editar nada; um mês com mais de 18 meses sem publicação
+volta a dar erro. `discover` acusa o que o catálogo não coleta, inclusive arquivo publicado com nome fora do padrão (`unclassified`).
 
 Grupos disponíveis:
 

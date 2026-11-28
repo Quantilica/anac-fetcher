@@ -52,7 +52,7 @@ Movimentos de pouso e decolagem dos aeroportos concedidos e dos de movimentaçã
 
 ## Origem e coleta
 
-- O fetcher baixa um CSV por mês de `Operador Aeroportuário/Dados de Movimentação Aeroportuárias/<ano>/`, de 2019-03 (a publicação só começou nesse mês) a 2026-05, o último confirmado no servidor na data da última conferência do catálogo (2026-11-28). Os meses seguintes, até o corrente, também entram na coleta e são baixados assim que a ANAC os publica; enquanto não existem, o 404 é tratado como "ainda não publicado" por até 12 meses de calendário.
+- O fetcher baixa um CSV por mês de `Operador Aeroportuário/Dados de Movimentação Aeroportuárias/<ano>/`, de 2019-03 (a publicação só começou nesse mês) a 2026-05, o último confirmado no servidor na data da última conferência do catálogo (2026-11-28). Os meses seguintes, até o corrente, também entram na coleta e são baixados assim que a ANAC os publica; enquanto não existem, o 404 é tratado como "ainda não publicado" por até 18 meses de calendário.
 - Só o CSV é catalogado: o JSON mensal tem cerca de 240 MB.
 - Conferido em 2026-11-15: 2019-03 (128.508 linhas), 2022-08 (161.821) e 2025-06 (194.271) têm as mesmas 24 colunas.
 - Os dados derivam do Relatório de Informações de Movimentação Aeroportuária (RIMA, Resolução ANAC 464/2018, Portaria 1.017/SRA/SIA) e vêm como enviados pelos administradores, sem as correções e interpolações dos indicadores contratuais; podem ser atualizados por eles.
