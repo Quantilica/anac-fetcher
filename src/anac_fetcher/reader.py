@@ -365,7 +365,7 @@ def _count_ragged_rows(
     skip_rows: int,
     quoted: bool,
 ) -> tuple[int, int] | None:
-    """Conta ``(linhas de dados, linhas com mais campos que o cabeçalho)``.
+    """Conta ``(linhas de dados, linhas que perderam conteúdo no corte)``.
 
     Só roda quando o leitor estrito recusou o arquivo. ``None`` se a contagem não
     foi possível (campo maior que o limite do ``csv``).
@@ -388,7 +388,9 @@ def _count_ragged_rows(
                 if not record:
                     continue
                 rows += 1
-                if len(record) > width:
+                # Só perde conteúdo a linha cujo campo a mais não é vazio:
+                # separador sobrando no fim da linha não corta dado nenhum.
+                if len(record) > width and any(c.strip() for c in record[width:]):
                     ragged += 1
     except (csv.Error, OSError):
         return None

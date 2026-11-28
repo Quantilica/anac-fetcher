@@ -326,3 +326,12 @@ def test_read_csv_header_with_bom_but_no_preamble(tmp_path):
     df = read_csv(path, {})
     assert df.columns == ["produto", "valor"]
     assert df.shape == (1, 2)
+
+
+def test_read_csv_separador_sobrando_no_fim_nao_conta_como_corte(tmp_path, caplog):
+    path = tmp_path / "dados.csv"
+    path.write_text("a;b\n" + "1;2;\n" * 50)  # campo a mais, vazio, em 100%
+    with caplog.at_level("WARNING", logger="anac_fetcher.reader"):
+        df = read_csv(path, {})
+    assert df.shape == (50, 2)
+    assert not [r for r in caplog.records if "linhas (" in r.getMessage()]
