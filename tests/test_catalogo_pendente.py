@@ -123,14 +123,14 @@ def _pendentes_mov(today: dt.date) -> list[tuple[int, int]]:
 
 
 def test_movimentacao_folga_acaba_no_limite_e_o_404_volta_a_ser_erro() -> None:
-    assert mov.PENDING_MAX_MONTHS == 12
-    # 2026-06 tem 12 meses em 2027-06: ainda pendente
-    assert _pendentes_mov(D(2027, 6, 15))[0] == (2026, 6)
-    # um mês depois ele tem 13: a marca cai e o 404 passa a ser erro
-    depois = _pendentes_mov(D(2027, 7, 1))
+    assert mov.PENDING_MAX_MONTHS == 18
+    # 2026-06 tem 18 meses em 2027-12: ainda pendente
+    assert _pendentes_mov(D(2027, 12, 15))[0] == (2026, 6)
+    # um mês depois ele tem 19: a marca cai e o 404 passa a ser erro
+    depois = _pendentes_mov(D(2028, 1, 1))
     assert depois[0] == (2026, 7)
     assert (2026, 6) not in depois
-    entries = mov._movimentacao_entries_list(D(2027, 7, 1))
+    entries = mov._movimentacao_entries_list(D(2028, 1, 1))
     junho = next(e for e in entries if (e["year"], e["month"]) == (2026, 6))
     assert "pending_publication" not in junho
     # a janela anda: sempre PENDING_MAX_MONTHS + 1 meses até o corrente
@@ -156,9 +156,9 @@ def test_movimentacao_virada_do_ano_nao_gera_mes_inexistente() -> None:
 
 
 def test_movimentacao_com_constante_atrasada_so_os_meses_velhos_viram_erro() -> None:
-    """Se ninguém subir ``LAST_PUBLISHED`` por mais de um ano, a fonte sem
+    """Se ninguém subir ``LAST_PUBLISHED`` por mais de 18 meses, a fonte sem
     publicar aparece como erro, não como 'pendente' para sempre."""
-    entries = mov._movimentacao_entries_list(D(2028, 1, 10))
+    entries = mov._movimentacao_entries_list(D(2028, 7, 10))
     sem_marca = [
         (e["year"], e["month"])
         for e in entries
@@ -166,7 +166,7 @@ def test_movimentacao_com_constante_atrasada_so_os_meses_velhos_viram_erro() -> 
         and not e.get("pending_publication")
     ]
     assert sem_marca[0] == (2026, 6)
-    assert sem_marca[-1] == (2026, 12)  # 2027-01 já está na janela de 12 meses
+    assert sem_marca[-1] == (2026, 12)  # 2027-01 tem 18 meses: ainda na janela
 
 
 def test_movimentacao_com_hoje_dentro_do_publicado_nao_gera_alem_de_hoje() -> None:

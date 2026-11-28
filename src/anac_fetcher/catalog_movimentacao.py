@@ -42,13 +42,16 @@ _START_YEAR = 2019  # primeiro ano publicado (confirmado via servidor)
 LAST_PUBLISHED: tuple[int, int] = (2026, 5)
 
 # Folga, em meses de calendário contados do mês do arquivo até hoje, em que o
-# 404 de um mês depois de ``LAST_PUBLISHED`` ainda é "não publicado". Medido em
-# 2026-11-28: o atraso observado vai de ~6 meses (``2026-05``, o mais recente
-# publicado) a ~10 meses (``2026-01``, que esperou até meados de novembro), e o
+# 404 de um mês depois de ``LAST_PUBLISHED`` ainda é "não publicado". O valor vem
+# de UMA observação só (2026-11-28): a fonte publicou em lote, em 2026-11-17,
+# meses com atraso de cerca de 6 (``2026-05``) a cerca de 10 (``2026-01``), e o
 # diretório de cada ano só foi fechado perto de 1.º de junho do ano seguinte.
-# Doze cobre o pior caso visto com dois meses de margem sem esconder um ano
-# inteiro de silêncio.
-PENDING_MAX_MONTHS = 12
+# Se o lote seguinte sair com o mesmo atraso, 12 viraria erro (saída parcial toda
+# noite) antes da publicação; 18 dá mais de seis meses de margem sobre o pior
+# caso visto, e o ponto cego da folga maior (arquivo publicado com outro nome) é
+# coberto pelo ``unclassified`` do ``discover``. REVER este valor quando houver um
+# segundo lote publicado.
+PENDING_MAX_MONTHS = 18
 
 
 def _movimentacao_entry(

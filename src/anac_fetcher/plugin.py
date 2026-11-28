@@ -193,6 +193,8 @@ def discover_cmd(
         _out(f"Catálogo vai até {report.last_published_catalog}.")
         for month in report.new_months:
             _out(f"NOVO     movimentacao-{month}")
+        for name in report.unclassified:
+            _out(f"NOME NÃO CLASSIFICADO     {name}")
         if report.ahead_of_confirmed:
             _out(
                 "Já coletados como pendentes (suba LAST_PUBLISHED): "

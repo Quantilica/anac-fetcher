@@ -17,10 +17,10 @@ from .catalog_movimentacao import LAST_PUBLISHED
 
 # Meses de calendário sem publicação a partir dos quais o aviso aparece. A
 # movimentação aeroportuária publica em lotes e já deixou um mês esperar dez
-# meses (``catalog_movimentacao.PENDING_MAX_MONTHS`` documenta a medida), então
-# o aviso só vem acima disso; aos ``PENDING_MAX_MONTHS`` meses (12) a marca de
-# pendente cai e o 404 vira erro.
-PENDING_WARN_MONTHS = 10
+# meses (``catalog_movimentacao.PENDING_MAX_MONTHS`` documenta a medida, que vem
+# de uma observação só), então o aviso só vem bem acima disso; aos
+# ``PENDING_MAX_MONTHS`` meses (18) a marca de pendente cai e o 404 vira erro.
+PENDING_WARN_MONTHS = 15
 
 
 def _index(year: int, month: int) -> int:

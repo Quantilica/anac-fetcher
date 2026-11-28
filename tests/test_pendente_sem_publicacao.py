@@ -20,30 +20,31 @@ def _pend(year: int, month: int, group: str = "movimentacao-aeroportuaria") -> d
 
 
 def test_aviso_vem_antes_da_folga_do_catalogo_acabar() -> None:
-    assert PENDING_WARN_MONTHS == 10
+    assert PENDING_WARN_MONTHS == 15
+    assert mov.PENDING_MAX_MONTHS == 18
     assert PENDING_WARN_MONTHS < mov.PENDING_MAX_MONTHS
 
 
-def test_sem_aviso_ate_dez_meses() -> None:
-    # 2026-01 a 2026-11: 10 meses
-    assert stale_pending_message([_pend(2026, 1)], D(2026, 11, 28)) is None
+def test_sem_aviso_ate_quinze_meses() -> None:
+    # 2025-08 a 2026-11: 15 meses
+    assert stale_pending_message([_pend(2025, 8)], D(2026, 11, 28)) is None
     assert stale_pending_message([], D(2026, 11, 28)) is None
 
 
-def test_aviso_acima_de_dez_meses_diz_desde_quando() -> None:
+def test_aviso_acima_de_quinze_meses_diz_desde_quando() -> None:
     msg = stale_pending_message(
-        [_pend(2026, 1), _pend(2025, 12), _pend(2026, 2)], D(2026, 11, 28)
+        [_pend(2025, 7), _pend(2025, 12), _pend(2026, 2)], D(2026, 11, 28)
     )
     assert msg is not None
     assert "movimentacao-aeroportuaria" in msg
-    assert "desde 2025-12 (11 meses)" in msg
+    assert "desde 2025-07 (16 meses)" in msg
     assert "2026-05" in msg  # último confirmado
     assert "discover" in msg
 
 
 def test_grupo_recente_nao_avisa_e_uma_linha_so() -> None:
     msg = stale_pending_message(
-        [_pend(2025, 12), _pend(2026, 9, "vra")], D(2026, 11, 28)
+        [_pend(2025, 7), _pend(2026, 9, "vra")], D(2026, 11, 28)
     )
     assert msg is not None and msg.count("sem publicação desde") == 1
     assert "vra" not in msg
@@ -75,8 +76,8 @@ def _app_404():
     )
 
 
-# 2027-05: o pendente mais antigo (2026-06) tem 11 meses, acima do limite do aviso.
-HOJE = D(2027, 5, 15)
+# 2027-11: o pendente mais antigo (2026-06) tem 17 meses, acima do limite do aviso.
+HOJE = D(2027, 11, 15)
 
 
 @pytest.fixture(autouse=True)
@@ -106,7 +107,7 @@ def test_sync_com_pendentes_em_404_avisa_uma_vez(
     assert errors == []  # o código de saída não muda
     avisos = [r for r in caplog.records if "sem publicação desde" in r.getMessage()]
     assert len(avisos) == 1
-    assert "desde 2026-06 (11 meses)" in avisos[0].getMessage()
+    assert "desde 2026-06 (17 meses)" in avisos[0].getMessage()
 
 
 def test_check_no_modo_de_plano_tambem_avisa_uma_vez(

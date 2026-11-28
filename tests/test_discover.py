@@ -4,9 +4,14 @@ from __future__ import annotations
 
 import datetime as dt
 
-from anac_fetcher.catalog import list_datasets
+from anac_fetcher import catalog_movimentacao as mov
 from anac_fetcher.catalog_movimentacao import _BASE, LAST_PUBLISHED
-from anac_fetcher.discover import discover, parse_months, parse_years
+from anac_fetcher.discover import (
+    discover,
+    parse_months,
+    parse_unclassified,
+    parse_years,
+)
 
 ROOT_HTML = '<a href="../">../</a><a href="2025/">2025/</a><a href="2026/">2026/</a>'
 
@@ -24,7 +29,7 @@ HOJE = dt.date(2026, 11, 28)
 
 def test_catalogo_confirma_ate_2026_05_e_o_resto_e_pendente() -> None:
     """Depois de ``LAST_PUBLISHED`` só entram meses pendentes (404 tolerado)."""
-    entries = list_datasets("movimentacao-aeroportuaria")
+    entries = mov._movimentacao_entries_list(HOJE)  # data fixa: sem relógio real
     firmes = [e for e in entries if not e.get("pending_publication")]
     assert (
         firmes[-1]["id"]
@@ -74,6 +79,73 @@ def test_discover_acha_o_que_o_catalogo_nao_gera() -> None:
     report = discover(lambda url: pages.get(url), today=HOJE)
     assert report.new_months == ["2026-12", "2027-01"]
     assert report.has_changes
+
+
+def _pages_reais_de_hoje() -> dict[str, str]:
+    """Forma dos índices reais de 2026-11-28 (incl. ``../``, ordenação e extras)."""
+    sort = '<a href="?C=N;O=D">Name</a><a href="?C=M;O=A">Last modified</a>'
+    return {
+        f"{_BASE}/": '<a href="../">../</a>'
+        + sort
+        + '<a href="2019/">2019/</a>'
+        + ROOT_HTML.replace('<a href="../">../</a>', ""),
+        f"{_BASE}/2019/": '<a href="../">../</a>'
+        + _month_html("201903", "201912")
+        + '<a href="Movimentacoes_Aeroportuarias_201912.csv.csv">x</a>',
+        f"{_BASE}/2025/": '<a href="../">../</a>' + sort + _month_html("202512"),
+        f"{_BASE}/2026/": '<a href="../">../</a>'
+        + _month_html(*(f"2026{m:02d}" for m in range(1, 6))),
+    }
+
+
+def test_discover_ignora_pai_ordenacao_json_e_extra_conhecido() -> None:
+    pages = _pages_reais_de_hoje()
+    report = discover(lambda url: pages.get(url), today=HOJE)
+    assert report.unclassified == []
+    assert report.new_months == []
+    assert not report.has_changes
+
+
+def test_discover_acha_arquivo_de_nome_estranho() -> None:
+    pages = _pages_reais_de_hoje()
+    pages[f"{_BASE}/2026/"] += (
+        '<a href="Movimentacoes_Aeroportuarias_202606_v2.csv">x</a>'
+        '<a href="Movimentacoes_Aeroportuarias_2026.zip">x</a>'
+        '<a href="outros/">outros/</a>'
+    )
+    report = discover(lambda url: pages.get(url), today=HOJE)
+    assert report.unclassified == [
+        "2026/Movimentacoes_Aeroportuarias_2026.zip",
+        "2026/Movimentacoes_Aeroportuarias_202606_v2.csv",
+        "2026/outros/",
+    ]
+    assert report.new_months == []
+    assert report.has_changes
+    assert report.to_dict()["has_changes"] is True
+
+
+def test_discover_acha_diretorio_estranho_na_raiz_e_arquivo_em_ano_antigo() -> None:
+    pages = _pages_reais_de_hoje()
+    pages[f"{_BASE}/"] += '<a href="anual/">anual/</a>'
+    pages[f"{_BASE}/2019/"] += '<a href="Movimentacoes_Aeroportuarias_2019.csv">x</a>'
+    report = discover(lambda url: pages.get(url), today=HOJE)
+    assert report.unclassified == [
+        "2019/Movimentacoes_Aeroportuarias_2019.csv",
+        "anual/",
+    ]
+    assert report.has_changes
+
+
+def test_parse_unclassified_so_o_padrao_conhecido_fica_de_fora() -> None:
+    html = (
+        '<a href="../">../</a><a href="?C=S;O=A">Size</a>'
+        + _month_html("202601")
+        + '<a href="Movimentacoes_Aeroportuarias_202601.CSV">x</a>'
+    )
+    assert parse_unclassified(html, 2026) == [
+        "2026/Movimentacoes_Aeroportuarias_202601.CSV"
+    ]
+    assert parse_unclassified('<a href="2026/">2026/</a><a href="../">../</a>') == []
 
 
 def test_discover_na_virada_do_ano_o_mes_publicado_entra_na_janela() -> None:
