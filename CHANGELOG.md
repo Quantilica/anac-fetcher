@@ -5,6 +5,15 @@ Todas as mudanças notáveis deste projeto serão documentadas neste arquivo.
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+
+- **Movimentação aeroportuária: cinco meses sem coleta.** `LAST_PUBLISHED` ficara em 2025-12 e a ANAC já publicara 2026-01 a 2026-05 (todos juntos, em 2026-11-17). Sobe para 2026-05. A folga dos meses seguintes passa a ser limitada: só levam `pending_publication` os meses a até 12 meses de hoje (`PENDING_MAX_MONTHS`, medida pelo atraso visto na fonte: de cerca de 6 a cerca de 10 meses); passado isso o 404 volta a ser erro, em vez de "pendente" para sempre. A constante só fixa até onde o 404 é erro desde o primeiro dia; um mês novo é coletado sem editá-la.
+- **`discover` coerente com o catálogo.** Compara a fonte com o que o catálogo gera, não com a constante: `new_months` traz só os meses publicados que a coleta não cobre (hoje nenhum). Os que já entram como pendentes aparecem no campo novo `ahead_of_confirmed` (informativo; não conta como novidade nem muda `has_changes`).
+- **Aviso de período pendente sem publicação sobe de 6 para 10 meses** (`PENDING_WARN_MONTHS`): a fonte já esperou dez meses por um mês, então seis avisaria em operação normal; o aviso vem antes de a folga acabar.
+- **Percentuais de atrasos e cancelamentos não gera mais mês inexistente na virada do ano.** Em janeiro e fevereiro o catálogo incluía o mês corrente (404 diário e saída 3). O fim agora é hoje menos 2 meses atravessando o ano, e os dois últimos meses gerados levam `pending_publication`, como no `vra`.
+
 ## [0.11.0] - 2026-11-28
 
 ### Corrigido
